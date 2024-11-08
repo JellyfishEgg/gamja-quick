@@ -1,11 +1,16 @@
 package com.sparta.gamjaquick.category.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
@@ -15,8 +20,8 @@ import lombok.NoArgsConstructor;
 public class Category extends AuditingFields {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private UUID id;
 
     private String name;
 
