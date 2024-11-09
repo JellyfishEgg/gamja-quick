@@ -7,7 +7,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,14 +19,17 @@ public abstract class AuditingFields {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
+
     @CreatedBy
     @Column(nullable = false, updatable = false)
     private String createdBy;
+
 
     @LastModifiedDate
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
+
 
     @LastModifiedBy
     @Column
@@ -42,3 +44,4 @@ public abstract class AuditingFields {
     private String deletedBy;
 
 }
+
