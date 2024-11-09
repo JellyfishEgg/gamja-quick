@@ -13,23 +13,35 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AuditingFields {
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
+
+
     @CreatedBy
     @Column(nullable = false, updatable = false)
     private String createdBy;
+
+
     @LastModifiedDate
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
+
+
     @LastModifiedBy
     @Column
     private String updatedBy;
+
+
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime deletedAt;
+
     @Column
     private String deletedBy;
+
 }
+
