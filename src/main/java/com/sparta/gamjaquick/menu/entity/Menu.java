@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -52,12 +53,13 @@ public class Menu extends AuditingFields {
         this.description = menuRequestDto.getDescription();
         this.price = menuRequestDto.getPrice();
         this.isSoldOut = menuRequestDto.getIsSoldOut();
-
-        //수정 시간 수정 코드 필요
+        super.setUpdatedAt(LocalDateTime.now());
+        //수정 한 사람 넣는 코드는 다시 작성
     }
 
     public void deleteMenu() {
         this.isDeleted = true;
-        //삭제 시간 수정 코드 필요
+        super.setDeletedAt(LocalDateTime.now());
+        //삭제 한 사람 넣는 코드는 다시 작성
     }
 }

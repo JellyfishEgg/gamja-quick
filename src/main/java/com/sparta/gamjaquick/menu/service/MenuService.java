@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.menu.service;
 
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.error.exception.BusinessException;
 import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.entity.Menu;
@@ -26,7 +28,7 @@ public class MenuService {
     @Transactional
     public void deleteMenu(UUID menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(
-                () -> new RuntimeException("삐용삐용!!!")
+                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
         );
         menu.deleteMenu();
 
@@ -34,17 +36,17 @@ public class MenuService {
 
     public MenuResponseDto getMenu(UUID menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(
-                () -> new RuntimeException("삐용삐용!!!")
+                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
         );
 
         return new MenuResponseDto(menu);
     }
 
-    public List<MenuResponseDto> getMenusByStore(UUID storeId) {
+    public List<MenuResponseDto> getMenusByStore(UUID storeId, String keyword) {
         List<Menu> menuList = null; //menuRepository.findAllByStore(storeId);
 
         if(menuList.isEmpty()){
-            throw new RuntimeException("삐용삐용!!!");
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
         }
 
         return menuList.stream().map(menu -> new MenuResponseDto(menu)).collect(Collectors.toList());
@@ -55,7 +57,7 @@ public class MenuService {
     public void deleteMenusByStore(UUID storeId) {
         List<Menu> menuList = null;//menuRepository.findAllByStore(storeId);
         if(menuList.isEmpty()){
-            throw new RuntimeException("삐용삐용!!!");
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);
         }
 
         menuList.forEach(menu -> menu.deleteMenu());
@@ -66,7 +68,7 @@ public class MenuService {
     @Transactional
     public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(
-                () -> new RuntimeException("삐용삐용!!!")
+                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
         );
 
         menu.updateByMenuDto(menuRequestDto);
