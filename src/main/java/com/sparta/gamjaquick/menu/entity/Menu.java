@@ -6,15 +6,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @Table(name="p_menu")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu extends AuditingFields {
@@ -27,7 +24,7 @@ public class Menu extends AuditingFields {
     //store 엔티티가 생기면 매핑 예정입니당
     private UUID storeId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
     private String description;
@@ -51,10 +48,16 @@ public class Menu extends AuditingFields {
     }
 
     public void updateByMenuDto(MenuRequestDto menuRequestDto) {
+        this.name = menuRequestDto.getMenuName();
+        this.description = menuRequestDto.getDescription();
+        this.price = menuRequestDto.getPrice();
+        this.isSoldOut = menuRequestDto.getIsSoldOut();
 
+        //수정 시간 수정 코드 필요
     }
 
     public void deleteMenu() {
         this.isDeleted = true;
+        //삭제 시간 수정 코드 필요
     }
 }

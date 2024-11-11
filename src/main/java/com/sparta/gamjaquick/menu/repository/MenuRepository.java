@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
-@Repository
+
 public interface MenuRepository extends JpaRepository<Menu, UUID> {
-    List<Menu> findAllByStore(UUID storeId);
+    //List<Menu> findAllByStore(UUID storeId);
 }

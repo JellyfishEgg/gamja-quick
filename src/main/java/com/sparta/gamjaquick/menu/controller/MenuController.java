@@ -31,7 +31,7 @@ public class MenuController {
     public void updateMenu(
                            @PathVariable(name = "menu_id") UUID menuId,
                            @RequestBody MenuRequestDto menuRequestDto) {
-        //MenuResponseDto response = menuService.updateMenu(menuId, menuRequestDto);
+        MenuResponseDto response = menuService.updateMenu(menuId, menuRequestDto);
 
     }
 

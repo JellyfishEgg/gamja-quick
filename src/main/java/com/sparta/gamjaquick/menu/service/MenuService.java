@@ -4,12 +4,13 @@ import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.menu.repository.MenuRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -40,36 +41,36 @@ public class MenuService {
     }
 
     public List<MenuResponseDto> getMenusByStore(UUID storeId) {
-        List<Menu> menuList = menuRepository.findAllByStore(storeId);
+        List<Menu> menuList = null; //menuRepository.findAllByStore(storeId);
 
         if(menuList.isEmpty()){
             throw new RuntimeException("삐용삐용!!!");
         }
 
-        return null;
+        return menuList.stream().map(menu -> new MenuResponseDto(menu)).collect(Collectors.toList());
 
     }
 
     @Transactional
     public void deleteMenusByStore(UUID storeId) {
-        List<Menu> menuList = menuRepository.findAllByStore(storeId);
+        List<Menu> menuList = null;//menuRepository.findAllByStore(storeId);
         if(menuList.isEmpty()){
             throw new RuntimeException("삐용삐용!!!");
         }
 
-        menuList.stream().forEach(menu -> menu.deleteMenu());
+        menuList.forEach(menu -> menu.deleteMenu());
 
     }
 
 
-//    @Transactional
-//    public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
-//        Menu menu = menuRepository.findById(menuId).orElseThrow(
-//                () -> new RuntimeException("삐용삐용!!!")
-//        );
-//
-//        menu.updateByMenuDto(menuRequestDto);
-//        return null;
-//
-//    }
+    @Transactional
+    public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(
+                () -> new RuntimeException("삐용삐용!!!")
+        );
+
+        menu.updateByMenuDto(menuRequestDto);
+        return new MenuResponseDto(menu);
+
+    }
 }
