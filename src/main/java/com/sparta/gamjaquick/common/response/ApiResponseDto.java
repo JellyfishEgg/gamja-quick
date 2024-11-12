@@ -25,4 +25,12 @@ public class ApiResponseDto<T> {
                 .build();
     }
 
+    public static <T> ApiResponseDto<T> success(MessageType messageType) {
+        return ApiResponseDto.<T>builder()
+                .status("success")
+                .message(messageType.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
 }
