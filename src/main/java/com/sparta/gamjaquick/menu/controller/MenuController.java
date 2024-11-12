@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.menu.controller;
 
+import com.sparta.gamjaquick.common.response.ApiResponseDto;
+import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.service.MenuService;
@@ -22,31 +24,36 @@ public class MenuController {
 
     //메뉴 등록
     @PostMapping("/menus")
-    public void createMenu(@PathVariable UUID storeId, @RequestBody MenuRequestDto menuRequestDto) {
-        MenuResponseDto response = menuService.createMenu(storeId, menuRequestDto);
+    public ApiResponseDto<MenuResponseDto> createMenu(@PathVariable UUID storeId, @RequestBody MenuRequestDto menuRequestDto) {
+        MenuResponseDto result = menuService.createMenu(storeId, menuRequestDto);
+        return ApiResponseDto.success(MessageType.CREATE, result);
     }
 
     //메뉴 수정
     @PutMapping("/menus/{menu_id}")
-    public void updateMenu(
+    public ApiResponseDto<MenuResponseDto> updateMenu(
                            @PathVariable(name = "menu_id") UUID menuId,
                            @RequestBody MenuRequestDto menuRequestDto) {
-        //MenuResponseDto response = menuService.updateMenu(menuId, menuRequestDto);
+        MenuResponseDto result = menuService.updateMenu(menuId, menuRequestDto);
 
+        return ApiResponseDto.success(MessageType.UPDATE, result);
     }
 
     //메뉴 단건 조회
     @GetMapping("/menus/{menu_id}")
-    public void getMenu(@PathVariable(name = "store_id") UUID storeId,
+    public ApiResponseDto<MenuResponseDto> getMenu(@PathVariable(name = "store_id") UUID storeId,
                         @PathVariable(name="menu_id") UUID menuId) {
-        MenuResponseDto response = menuService.getMenu(menuId);
+        MenuResponseDto result = menuService.getMenu(menuId);
 
+        return ApiResponseDto.success(MessageType.RETRIEVE, result);
     }
 
     //메뉴 전체 조회
     @GetMapping("/menus")
-    public void getMenusByStore(@PathVariable(name = "store_id") UUID storeId) {
-        List<MenuResponseDto> responseList = menuService.getMenusByStore(storeId);
+    public ApiResponseDto<List<MenuResponseDto>> getMenusByStore(@PathVariable(name = "store_id") UUID storeId,
+                                                                 @RequestParam(name = "keyword", required = false) String keyword) {
+        List<MenuResponseDto> responseList = menuService.getMenusByStore(storeId, keyword);
+        return ApiResponseDto.success(MessageType.RETRIEVE, responseList);
     }
 
 
