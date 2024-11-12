@@ -6,6 +6,9 @@ build/
 !**/src/test/**/build/
 src/main/resources/application**
 
+### queryDSL ###
+src/main/generated/
+
 ### STS ###
 .apt_generated
 .classpath
