@@ -9,6 +9,7 @@ import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final AuditorAware<String> auditorAware;
 
     // 카테고리 등록
     public CategoryResponseDto create(CategoryRequestDto requestDto) {
@@ -67,7 +69,7 @@ public class CategoryService {
             throw new BusinessException(ErrorCode.CATEGORY_ALREADY_DELETED);
         }
 
-        findCategory.delete();
+        findCategory.delete(auditorAware.getCurrentAuditor().orElse("")); // TODO: 로그인한 유저로 변경
         return CategoryResponseDto.from(findCategory);
     }
 
