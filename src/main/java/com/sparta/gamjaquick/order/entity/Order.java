@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "p_orders")
 public class Order {
@@ -26,7 +25,7 @@ public class Order {
     private Long userId;
 
     @Column(name = "store_id", length = 100, nullable = false)
-    private String storeId;
+    private UUID storeId;
 
     @Column(name = "order_number", length = 100, nullable = false)
     private String orderNumber;
@@ -39,27 +38,14 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private orderStatus status;
+    private OrderStatus status;
 
     @Column(name = "cancel_reason", length = 100, nullable = false)
     private String cancelReason;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private orderType type;
+    private OrderType type;
 
 }
 
-enum orderStatus {
-    PENDING,
-    PREPARING,
-    IN_PROGRESS,
-    SHIPPING,
-    COMPLETED,
-    CANCELLED
-}
-
-enum orderType {
-    OFFLINE,
-    ONLINE
-}
