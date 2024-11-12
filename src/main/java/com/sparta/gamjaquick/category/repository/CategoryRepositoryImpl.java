@@ -27,7 +27,8 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
         int skip = (searchParameter.getPage() - 1) * searchParameter.getLimit();
 
         List<Category> results = queryFactory.selectFrom(category)
-                .where(getSearchParameterBuilder(searchParameter))
+                .where(getSearchParameterBuilder(searchParameter)
+                        .and(category.isDeleted.eq(false)))
                 .orderBy(searchParameter.getSort() == Sort.Direction.ASC
                         ? category.createdAt.asc()
                         : category.createdAt.desc())
@@ -45,7 +46,8 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     private long getTotalCount(SearchParameter searchParameter) {
         return queryFactory.select(Wildcard.count)
                 .from(category)
-                .where(getSearchParameterBuilder(searchParameter))
+                .where(getSearchParameterBuilder(searchParameter)
+                        .and(category.isDeleted.eq(false)))
                 .fetch().getFirst();
     }
 
