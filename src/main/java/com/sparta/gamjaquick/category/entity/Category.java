@@ -46,8 +46,9 @@ public class Category extends AuditingFields {
         this.name = requestDto.getName();
     }
 
-    public void delete() {
+    public void delete(String auditingUser) {
         this.isDeleted = true;
+        super.delete(auditingUser);
     }
 
 }

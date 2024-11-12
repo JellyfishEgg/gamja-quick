@@ -45,5 +45,10 @@ public abstract class AuditingFields {
     @Column
     private String deletedBy;
 
+    public void delete(String deletedBy) {
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedBy;
+    }
+
 }
 

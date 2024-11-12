@@ -17,7 +17,7 @@ public class JpaConfig {
         return new JPAQueryFactory(entityManager);
     }
 
-    // @CreatedBy, @UpdateBy에 자동으로 값이 등록됩니다.
+    // @CreatedBy, @LastModifiedDate 필드에 자동으로 값이 등록됩니다.
     @Bean
     public AuditorAware<String> auditorAware() {
         // TODO: security 적용 시 해당 로직 수정
