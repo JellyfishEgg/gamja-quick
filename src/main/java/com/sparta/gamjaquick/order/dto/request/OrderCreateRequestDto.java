@@ -46,12 +46,12 @@ public class OrderCreateRequestDto {
         private int quantity;
     }
 
-//    @Getter
-//    @Setter
-//    public static class DeliveryInfo {
-//        private String address;
-//        private String request;
-//    }
+    @Getter
+    @Setter
+    public static class DeliveryInfoRequestDto {
+        private String address;
+        private String request;
+    }
 
     @Getter
     @Setter
