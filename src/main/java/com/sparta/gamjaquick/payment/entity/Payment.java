@@ -1,5 +1,6 @@
 package com.sparta.gamjaquick.payment.entity;
 
+import com.sparta.gamjaquick.common.AuditingFields;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @Table(name = "p_payments")
-public class Payment {
+public class Payment extends AuditingFields {
 
     @Id
     @GeneratedValue
@@ -37,9 +38,9 @@ public class Payment {
 
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
+
+//    @Column(name = "failure_reason")
+//    private String failureReason;       // 결제가 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
+
 }
 
-enum PaymentStatus {
-    SUCCESS,
-    FAILURE
-}
