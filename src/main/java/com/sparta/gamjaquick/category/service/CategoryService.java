@@ -73,9 +73,9 @@ public class CategoryService {
         return CategoryResponseDto.from(findCategory);
     }
 
-    private Category findById(String categoryId) {
+    public Category findById(String categoryId) {
         return categoryRepository.findById(UUID.fromString(categoryId)).orElseThrow(
-                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND)
         );
     }
 
