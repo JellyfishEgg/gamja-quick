@@ -18,7 +18,11 @@ public enum ErrorCode {
 
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),
-    CATEGORY_ALREADY_DELETED(HttpStatus.CONFLICT, "CAT-002", "이미 삭제된 카테고리입니다.")
+    CATEGORY_ALREADY_DELETED(HttpStatus.CONFLICT, "CAT-002", "이미 삭제된 카테고리입니다."),
+
+    //메뉴 관련
+    MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MEN-002","해당 메뉴를 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

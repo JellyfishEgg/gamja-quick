@@ -59,4 +59,7 @@ public class Store extends AuditingFields {
         return isDeleted;
     }
 
+    public Store(UUID id) {
+        this.id = id;
+    }
 }
