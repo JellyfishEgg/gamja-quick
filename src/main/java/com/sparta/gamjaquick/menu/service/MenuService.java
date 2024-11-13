@@ -8,6 +8,7 @@ import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.menu.repository.MenuRepository;
 import com.sparta.gamjaquick.store.entity.Store;
+import com.sparta.gamjaquick.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,12 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final AuditorAware<String> auditorAware;
+    private final StoreService storeService;
 
     public MenuResponseDto createMenu(UUID storeId, MenuRequestDto menuRequestDto) {
         //으아악 여기 나중에 고치기 !!!!!
-        Menu menu=menuRepository.save(new Menu(new Store(storeId), menuRequestDto));
+        Store store = storeService.findById(String.valueOf(storeId));
+        Menu menu=menuRepository.save(new Menu(store, menuRequestDto));
         return new MenuResponseDto(menu);
     }
 
