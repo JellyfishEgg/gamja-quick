@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class CreateStoreRequestDto {
+public class StoreCreateRequestDto {
 
     @NotBlank(message = "가게 이름을 입력해 주세요.")
     @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하여야 합니다.")

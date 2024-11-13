@@ -7,18 +7,19 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
 @Getter
-public class CreateStoreResponseDto {
+public class StoreResponseDto {
 
-    private UUID id;
+    private String id;
     private String name;
 
     private String phoneNumber;
-    private StoreStatus storeStatus;  // 가게 상태 (예: PENDING_APPROVAL, APPROVED, REJECTED)
+    private StoreStatus storeStatus;
+    private String rejectionReason;
+    private double rating;
 
     // 주소 정보
     private String roadAddress;
@@ -32,15 +33,18 @@ public class CreateStoreResponseDto {
     private String dong;
     private String jibun;
 
+    private boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static CreateStoreResponseDto from(Store store) {
-        return CreateStoreResponseDto.builder()
-                .id(store.getId())
+    public static StoreResponseDto from(Store store) {
+        return StoreResponseDto.builder()
+                .id(store.getId().toString())
                 .name(store.getName())
                 .phoneNumber(store.getPhoneNumber())
                 .storeStatus(store.getStoreStatus())
+                .rejectionReason(store.getRejectionReason())
+                .rating(store.getRating())
                 .roadAddress(store.getAddress())
                 .jibunAddress(store.getJibunAddress())
                 .sido(store.getRegion().getSido())
@@ -51,6 +55,7 @@ public class CreateStoreResponseDto {
                 .detailAddress(store.getRegion().getRoadAddress().getDetailAddress())
                 .dong(store.getRegion().getJibunAddress().getDong())
                 .jibun(store.getRegion().getJibunAddress().getJibun())
+                .isDeleted(store.getIsDeleted())
                 .createdAt(store.getCreatedAt())
                 .updatedAt(store.getUpdatedAt())
                 .build();

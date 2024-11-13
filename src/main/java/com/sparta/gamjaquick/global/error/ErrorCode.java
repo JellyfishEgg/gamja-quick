@@ -25,7 +25,8 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "ST-002", "존재하지 않는 가게입니다."),
     STORE_APPROVAL_PENDING(HttpStatus.CONFLICT, "ST-003", "승인 대기 중인 가게입니다."),
     STORE_APPROVAL_REJECTED(HttpStatus.CONFLICT, "ST-004", "승인 거부된 가게입니다."),
-    STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다.")
+    STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다."),
+    STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다.")
     ;
 
     private final HttpStatus httpStatus;

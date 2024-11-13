@@ -1,7 +1,8 @@
 package com.sparta.gamjaquick.store.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
-import com.sparta.gamjaquick.store.dto.request.CreateStoreRequestDto;
+import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
+import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
 import com.sparta.gamjaquick.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -70,7 +71,7 @@ public class Store extends AuditingFields {
         return isDeleted;
     }
 
-    public static Store from(User user, CreateStoreRequestDto dto) {
+    public static Store from(User user, StoreCreateRequestDto dto) {
         Region.RoadAddress roadAddress = Region.RoadAddress.builder()
                 .buildingNumber(dto.getBuildingNumber())
                 .buildingName(dto.getBuildingName())
@@ -108,6 +109,23 @@ public class Store extends AuditingFields {
     public boolean isAwaitingApproval() {
         return this.storeStatus == StoreStatus.PENDING_APPROVAL
                 || this.storeStatus == StoreStatus.REJECTED;
+    }
+
+    /**
+     * 가게 등록 승인 or 반려
+     */
+    public void processApproval(StoreApprovalRequestDto requestDto) {
+        if (this.storeStatus == StoreStatus.PENDING_APPROVAL
+                || this.storeStatus == StoreStatus.REJECTED) {
+
+            if (requestDto.isApproved()) {
+                this.storeStatus = StoreStatus.APPROVED;
+                this.rejectionReason = "관리자 승인 완료";
+            } else {
+                this.storeStatus = StoreStatus.REJECTED;
+                this.rejectionReason = requestDto.getRejectionReason();
+            }
+        }
     }
 
 }
