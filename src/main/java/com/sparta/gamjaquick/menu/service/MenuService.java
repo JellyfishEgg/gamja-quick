@@ -7,6 +7,7 @@ import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.menu.repository.MenuRepository;
+import com.sparta.gamjaquick.store.entity.Store;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
@@ -24,14 +25,15 @@ public class MenuService {
     private final AuditorAware<String> auditorAware;
 
     public MenuResponseDto createMenu(UUID storeId, MenuRequestDto menuRequestDto) {
-        Menu menu=menuRepository.save(new Menu(storeId, menuRequestDto));
+        //으아악 여기 나중에 고치기 !!!!!
+        Menu menu=menuRepository.save(new Menu(new Store(storeId), menuRequestDto));
         return new MenuResponseDto(menu);
     }
 
     @Transactional
     public MenuDeleteReponseDto deleteMenu(UUID menuId) {
         Menu menu = checkMenu(menuId);
-        if(checkMenuDeleted(menu)){
+        if(menu.getIsDeleted()){
             throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
         }
 
@@ -42,7 +44,7 @@ public class MenuService {
 
     public MenuResponseDto getMenu(UUID menuId) {
         Menu menu = checkMenu(menuId);
-        if(checkMenuDeleted(menu)){
+        if(menu.getIsDeleted()){
             throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
         }
         return new MenuResponseDto(menu);
@@ -52,8 +54,8 @@ public class MenuService {
     public List<MenuResponseDto> getMenusByStore(UUID storeId, String keyword) {
 
         List<Menu> menuList = checkMenuList(storeId);
-        return menuList.stream().filter(menu -> !checkMenuDeleted(menu))
-                .map(menu -> new MenuResponseDto(menu)).collect(Collectors.toList());
+        return menuList.stream().filter(menu -> !menu.getIsDeleted())
+                .map(MenuResponseDto::new).toList();
 
     }
 
@@ -61,16 +63,16 @@ public class MenuService {
     public List<MenuDeleteReponseDto> deleteMenusByStore(UUID storeId) {
         List<Menu> menuList = checkMenuList(storeId);
 
-        return menuList.stream().filter(menu -> !checkMenuDeleted(menu))
+        return menuList.stream().filter(menu -> !menu.getIsDeleted())
                 .map(menu -> menu.deleteMenu(auditorAware.getCurrentAuditor().orElse("")))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
     @Transactional
     public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
         Menu menu = checkMenu(menuId);
-        if(checkMenuDeleted(menu)){
+        if(menu.getIsDeleted()){
             throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
         }
         menu.updateByMenuDto(menuRequestDto);
@@ -91,9 +93,7 @@ public class MenuService {
         return menuList;
     }
 
-    public boolean checkMenuDeleted(Menu menu) {
-        return menu.getIsDeleted() ? true : false;
-    }
+
 
 
 

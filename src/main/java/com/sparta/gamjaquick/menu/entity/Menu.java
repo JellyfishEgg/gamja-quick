@@ -50,8 +50,8 @@ public class Menu extends AuditingFields {
     private Boolean isSoldOut;
 
 
-    public Menu(UUID storeId, MenuRequestDto menuRequestDto) {
-        this.store = new Store(storeId);
+    public Menu(Store store, MenuRequestDto menuRequestDto) {
+        this.store = store;
         this.name = menuRequestDto.getMenuName();
         this.description = menuRequestDto.getDescription();
         this.price = menuRequestDto.getPrice();
