@@ -135,4 +135,8 @@ public class Store extends AuditingFields {
         }
     }
 
+    public Store(UUID id){
+        this.id = id;
+    }
+
 }

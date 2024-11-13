@@ -67,7 +67,7 @@ public class StoreService {
         return StoreResponseDto.from(findStore);
     }
 
-    private Store findById(String storeId) {
+    public Store findById(String storeId) {
         return storeRepository.findById(UUID.fromString(storeId)).orElseThrow(
                 () -> new BusinessException(ErrorCode.STORE_NOT_FOUND)
         );

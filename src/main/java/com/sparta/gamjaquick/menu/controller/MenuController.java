@@ -3,6 +3,7 @@ package com.sparta.gamjaquick.menu.controller;
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
+import com.sparta.gamjaquick.menu.dto.response.MenuDeleteReponseDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.service.MenuService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class MenuController {
 
     //메뉴 등록
     @PostMapping("/menus")
-    public ApiResponseDto<MenuResponseDto> createMenu(@PathVariable UUID storeId, @RequestBody MenuRequestDto menuRequestDto) {
+    public ApiResponseDto<MenuResponseDto> createMenu(@PathVariable(name = "store_id") UUID storeId, @RequestBody MenuRequestDto menuRequestDto) {
         MenuResponseDto result = menuService.createMenu(storeId, menuRequestDto);
         return ApiResponseDto.success(MessageType.CREATE, result);
     }
@@ -59,16 +60,18 @@ public class MenuController {
 
     //메뉴 단건 삭제
     @DeleteMapping("/menus/{menu_id}")
-    public void deleteMenu(@PathVariable(name = "store_id") UUID storeId,
-                           @PathVariable(name = "menu_id") UUID menuId) {
-        menuService.deleteMenu(menuId);
+    public ApiResponseDto<MenuDeleteReponseDto> deleteMenu(@PathVariable(name = "store_id") UUID storeId,
+                                                           @PathVariable(name = "menu_id") UUID menuId) {
+        return ApiResponseDto.success(MessageType.DELETE,menuService.deleteMenu(menuId));
     }
 
     //메뉴 전체 삭제
     @DeleteMapping("/menus")
-    public void deleteMenusByStore(@PathVariable(name = "store_id") UUID storeId) {
-        menuService.deleteMenusByStore(storeId);
+    public ApiResponseDto<List<MenuDeleteReponseDto>> deleteMenusByStore(@PathVariable(name = "store_id") UUID storeId) {
+        return ApiResponseDto.success(MessageType.DELETE,menuService.deleteMenusByStore(storeId));
     }
+
+
 
 
 }

@@ -27,7 +27,11 @@ public enum ErrorCode {
     STORE_APPROVAL_PENDING(HttpStatus.CONFLICT, "ST-003", "승인 대기 중인 가게입니다."),
     STORE_APPROVAL_REJECTED(HttpStatus.CONFLICT, "ST-004", "승인 거부된 가게입니다."),
     STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다."),
-    STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다.")
+    STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다."),
+
+    //메뉴 관련
+    MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MEN-002","해당 메뉴를 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;
