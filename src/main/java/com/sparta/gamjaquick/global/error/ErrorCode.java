@@ -18,7 +18,14 @@ public enum ErrorCode {
 
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),
-    CATEGORY_ALREADY_DELETED(HttpStatus.CONFLICT, "CAT-002", "이미 삭제된 카테고리입니다.")
+    CATEGORY_ALREADY_DELETED(HttpStatus.CONFLICT, "CAT-002", "이미 삭제된 카테고리입니다."),
+
+    // 가게 관련
+    STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "ST-001", "해당 주소에 이미 존재하는 가게입니다."),
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "ST-002", "존재하지 않는 가게입니다."),
+    STORE_APPROVAL_PENDING(HttpStatus.CONFLICT, "ST-003", "승인 대기 중인 가게입니다."),
+    STORE_APPROVAL_REJECTED(HttpStatus.CONFLICT, "ST-004", "승인 거부된 가게입니다."),
+    STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다.")
     ;
 
     private final HttpStatus httpStatus;
