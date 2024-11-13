@@ -8,6 +8,9 @@ import lombok.Getter;
 @Getter
 public class StoreCreateRequestDto {
 
+    @NotBlank(message = "카테고리 ID를 입력해 주세요.")
+    private String categoryId;
+
     @NotBlank(message = "가게 이름을 입력해 주세요.")
     @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하여야 합니다.")
     private String name;

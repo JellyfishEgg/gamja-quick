@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.store.service;
 
+import com.sparta.gamjaquick.category.entity.Category;
+import com.sparta.gamjaquick.category.service.CategoryService;
 import com.sparta.gamjaquick.common.request.StoreSearchParameter;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.global.error.ErrorCode;
@@ -27,15 +29,17 @@ import java.util.UUID;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final CategoryService categoryService;
     private final UserRepository userRepository;
 
     // 가게 등록 신청 (가게 주인)
     public StoreCreateResponseDto registerStore(StoreCreateRequestDto requestDto) {
         validateStoreNotExists(requestDto);
 
+        Category findCategory = categoryService.findById(requestDto.getCategoryId());
         // TODO: 시큐리시 적용 후 user 객체 주입
         User user = userRepository.findById(1L).get();
-        Store createdStore = storeRepository.save(Store.from(user, requestDto));
+        Store createdStore = storeRepository.save(Store.from(user, findCategory, requestDto));
 
         return StoreCreateResponseDto.from(createdStore);
     }

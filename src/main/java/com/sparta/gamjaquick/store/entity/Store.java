@@ -1,5 +1,6 @@
 package com.sparta.gamjaquick.store.entity;
 
+import com.sparta.gamjaquick.category.entity.Category;
 import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
@@ -31,6 +32,11 @@ public class Store extends AuditingFields {
     @JoinColumn(name = "user_id")
     @Comment(value = "가게 소유자 ID")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @Comment(value = "카테고리 ID")
+    private Category category;
 
     @Column(length = 100, nullable = false)
     @Comment("가게 이름")
@@ -71,7 +77,7 @@ public class Store extends AuditingFields {
         return isDeleted;
     }
 
-    public static Store from(User user, StoreCreateRequestDto dto) {
+    public static Store from(User user, Category category, StoreCreateRequestDto dto) {
         Region.RoadAddress roadAddress = Region.RoadAddress.builder()
                 .buildingNumber(dto.getBuildingNumber())
                 .buildingName(dto.getBuildingName())
@@ -93,6 +99,7 @@ public class Store extends AuditingFields {
 
         return Store.builder()
                 .user(user)
+                .category(category)
                 .name(dto.getName())
                 .address(dto.getRoadAddress())
                 .jibunAddress(dto.getJibunAddress())

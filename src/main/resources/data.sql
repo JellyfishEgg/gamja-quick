@@ -2,10 +2,11 @@ CREATE TABLE p_stores
 (
     id               BINARY(16) NOT NULL COMMENT '가게 고유 ID',
     user_id          BIGINT COMMENT '가게 소유자 ID',
+    category_id      BINARY(16) NOT NULL COMMENT '카테고리 고유 ID',
     name             VARCHAR(100) NOT NULL COMMENT '가게 이름',
     address          VARCHAR(200) NOT NULL COMMENT '가게 주소',
     jibun_address    VARCHAR(200) NOT NULL COMMENT '가게 지번 주소',
-    phone_number     VARCHAR(20) NOT NULL COMMENT '가게 전화번호',
+    phone_number     VARCHAR(20)  NOT NULL COMMENT '가게 전화번호',
     rating           FLOAT(53)    NOT NULL COMMENT '가게 평점' DEFAULT 0,
     store_status     ENUM ('APPROVED','CLOSE','OPEN','PENDING_APPROVAL','PERMANENTLY_CLOSED','REJECTED','SUSPENDED','TEMPORARILY_CLOSED') NOT NULL COMMENT '가게 운영 상태',
     rejection_reason VARCHAR(500) COMMENT '승인 거부 사유',
@@ -31,6 +32,11 @@ ALTER TABLE p_stores
     ADD CONSTRAINT FKt0cqa7pyqclhoh8o7nt15a2bm
         FOREIGN KEY (user_id)
             REFERENCES p_users (id);
+
+ALTER TABLE p_stores
+    ADD CONSTRAINT FK8sxoo6ukpp6kqaf4ylsqfbld5
+        FOREIGN KEY (category_id)
+            REFERENCES p_category (id);
 
 CREATE INDEX idx_sido_sigungu
     ON p_stores (sido, sigungu);

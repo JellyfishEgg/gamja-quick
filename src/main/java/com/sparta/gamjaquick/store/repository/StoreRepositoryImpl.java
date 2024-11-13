@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.sparta.gamjaquick.store.entity.QStore.store;
 
@@ -39,7 +40,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         // 전체 개수 쿼리
         long totalCount = getTotalCount(searchParameter);
 
-        return new PageImpl<>(results, searchParameter.getPageable(), totalCount);;
+        return new PageImpl<>(results, searchParameter.getPageable(), totalCount);
     }
 
     // 가게 목록 전체 개수 조회
@@ -51,11 +52,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .fetch().getFirst();
     }
 
+    // 검색 키워드 조건 처리
     private BooleanBuilder getSearchParameterBuilder(StoreSearchParameter searchParameter) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (StringUtils.hasText(searchParameter.getCategoryId())) {
-            builder.and(store.category.id.eq(searchParameter.getCategoryId()));
+            builder.and(store.category.id.eq(UUID.fromString(searchParameter.getCategoryId())));
         }
 
         if (StringUtils.hasText(searchParameter.getKeyword())) {
