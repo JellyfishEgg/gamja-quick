@@ -10,4 +10,5 @@ public class UserSearchParameter {
     private String username;
     private String email;
     private Sort.Direction sortDirection = Sort.Direction.DESC;
-    private String sortBy = "createdAt"; //
+    private String sortBy = "createdAt"; // 기본 정렬 기준
+}
