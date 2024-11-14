@@ -10,7 +10,6 @@ public class PaymentCreateRequestDto {
 
     private UUID orderId;
     private String paymentAmount;
-    @Getter
     private String paymentKey;
 
 }
