@@ -27,11 +27,8 @@ public class Menu extends AuditingFields {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_store_id" ,insertable = false, updatable = false)
+    @JoinColumn(name = "p_store_id")
     private Store store;
-
-    @Column(name= "p_store_id")
-    private UUID storeId;
 
 
 
