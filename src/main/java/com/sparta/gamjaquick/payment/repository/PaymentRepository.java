@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
-
     Optional<Payment> findById(UUID paymentId); //관리자가 내역 조회
 //    List<Payment> findByStoreId(UUID storeId); //가게주인이 본인 가게에 들어온 내역 조회..는 알아서 조회하시라..
 }
