@@ -2,6 +2,7 @@ package com.sparta.gamjaquick.store.entity;
 
 import com.sparta.gamjaquick.category.entity.Category;
 import com.sparta.gamjaquick.common.AuditingFields;
+import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
 import com.sparta.gamjaquick.user.entity.User;
@@ -10,6 +11,8 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -73,29 +76,15 @@ public class Store extends AuditingFields {
     @Comment("삭제 여부")
     private boolean isDeleted;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Menu> menuList = new ArrayList<>();
+
     public boolean getIsDeleted() {
         return isDeleted;
     }
 
     public static Store from(User user, Category category, StoreCreateRequestDto dto) {
-        Region.RoadAddress roadAddress = Region.RoadAddress.builder()
-                .buildingNumber(dto.getBuildingNumber())
-                .buildingName(dto.getBuildingName())
-                .roadName(dto.getRoadName())
-                .detailAddress(dto.getDetailAddress())
-                .build();
-
-        Region.JibunAddress jibunAddress = Region.JibunAddress.builder()
-                .jibun(dto.getJibun())
-                .dong(dto.getDong())
-                .build();
-
-        Region region = Region.builder()
-                .sido(dto.getSido())
-                .sigungu(dto.getSigungu())
-                .roadAddress(roadAddress)
-                .jibunAddress(jibunAddress)
-                .build();
+        Region region = Region.from(dto);
 
         return Store.builder()
                 .user(user)
