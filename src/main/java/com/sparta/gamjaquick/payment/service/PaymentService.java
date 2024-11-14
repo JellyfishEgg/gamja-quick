@@ -46,14 +46,12 @@ public class PaymentService {
     }
 
     // 결제 삭제
-    public ApiResponseDto<MessageType> deletePayment(UUID paymentId) {
+    public void deletePayment(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         payment.changeToDeleted();
-        return ApiResponseDto.success(MessageType.DELETE);
     }
-
 
 }
 

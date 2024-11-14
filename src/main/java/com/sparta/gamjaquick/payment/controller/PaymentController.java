@@ -41,6 +41,7 @@ public class PaymentController {
 
     @DeleteMapping("/{paymentId}")
     public ApiResponseDto<MessageType> deletePayment(@PathVariable UUID paymentId) {
-        return paymentService.deletePayment(paymentId);
+        paymentService.deletePayment(paymentId);
+        return ApiResponseDto.success(MessageType.DELETE);
     }
 }
