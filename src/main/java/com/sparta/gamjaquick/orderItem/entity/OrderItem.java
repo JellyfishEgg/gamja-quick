@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.orderItem.entity;
 
+import com.sparta.gamjaquick.menu.entity.Menu;
+import com.sparta.gamjaquick.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,11 +23,13 @@ public class OrderItem {
     @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "order_id", length = 255, nullable = false)
-    private String orderId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-    @Column(name = "menu_id", length = 100, nullable = false)
-    private String menuId;
+    @ManyToOne(fetch = FetchType.LAZY)  // 지연 로딩(Lazy Loading)
+    @JoinColumn(name = "menu_id", nullable = false)  // 외래 키 설정
+    private Menu menu;
 
     @Column(name = "quantity", nullable = false, columnDefinition = "int default 1")
     private int quantity = 1;
@@ -35,4 +39,10 @@ public class OrderItem {
 
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
+
+    public OrderItem(Menu menu, int quantity, int orderPrice) {
+        this.menu = menu;
+        this.quantity = quantity;
+        this.orderPrice = orderPrice;
+    }
 }

@@ -26,11 +26,14 @@ public class Payment extends AuditingFields {
     @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "order_id", length = 100, nullable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private UUID orderId;
 
     @Column(name = "payment_amount", length = 100, nullable = false)
-    private String paymentAmount;
+    private int paymentAmount;
+
+    @Column(name = "payment_method", length = 100, nullable = false)
+    private String paymentMethod;
 
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate = LocalDateTime.now();
@@ -46,10 +49,11 @@ public class Payment extends AuditingFields {
     private boolean isDeleted = false;
 
     public Payment(PaymentCreateRequestDto requestDto) {
-        this.orderId = requestDto.getOrderId();      // Order ID 설정
-        this.paymentAmount = requestDto.getPaymentAmount(); // 결제 금액 설정
-        this.paymentKey = requestDto.getPaymentKey(); // Payment Key 설정
-        this.status = PaymentStatus.PENDING;         // 초기 상태를 PENDING으로 설정
+        this.orderId = requestDto.getOrderId();
+        //this.paymentAmount = requestDto.getPaymentAmount();
+        this.paymentMethod = requestDto.getPaymentMethod();
+        this.status = requestDto.getStatus();
+        //this.paymentKey = requestDto.getPaymentKey();
     }
 
 

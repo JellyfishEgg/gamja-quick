@@ -67,7 +67,7 @@ public class OrderResponseDto {
 
                 // 배달 및 결제 정보
                 .deliveryInfo(DeliveryInfoResponseDto.from(order.getDeliveryInfo()))
-                //.payment(PaymentResponseDto.from(order.getPayment())) // 결제 정보 포함
+                .payment(PaymentResponseDto.from(order.getPayment()))
                 .build();
     }
 }

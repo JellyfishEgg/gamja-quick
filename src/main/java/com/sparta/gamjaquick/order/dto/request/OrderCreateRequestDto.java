@@ -23,15 +23,15 @@ public class OrderCreateRequestDto {
     private PaymentCreateRequestDto payment;
     private DeliveryInfoRequestDto deliveryInfo;
 
-//    public OrderCreateRequestDto(Long userId, UUID storeId, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentInfo payment, DeliveryInfoRequestDto deliveryInfoRequestDto) {
-//        this.userId = userId;
-//        this.storeId = storeId;
-//        this.orderNumber = orderNumber;
-//        this.orderItems = orderItems;
-//        this.type = type;
-//        this.payment = payment;
-//        this.deliveryInfoRequestDto = deliveryInfoRequestDto;
-//    }
+    public OrderCreateRequestDto(Long userId, UUID storeId, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
+        this.userId = userId;
+        this.storeId = storeId;
+        this.orderNumber = orderNumber;
+        this.orderItems = orderItems;
+        this.type = type;
+        this.payment = payment;
+        this.deliveryInfo = deliveryInfo;
+    }
 
 
     @Getter
@@ -47,12 +47,5 @@ public class OrderCreateRequestDto {
     public static class DeliveryInfoRequestDto {
         private String address;
         private String request;
-    }
-
-    @Getter
-    @Setter
-    public static class PaymentCreateRequestDto {
-        private int paymentAmount;
-        private String paymentMethod;
     }
 }

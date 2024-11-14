@@ -1,5 +1,6 @@
 package com.sparta.gamjaquick.payment.dto.request;
 
+import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,8 +11,10 @@ import java.util.UUID;
 public class PaymentCreateRequestDto {
 
     private UUID orderId;
-    private String paymentAmount;
-    private String paymentKey;
+    //private int paymentAmount;
+    private String paymentMethod;
+    private PaymentStatus status;
+    //private String paymentKey;
 
 }
 
