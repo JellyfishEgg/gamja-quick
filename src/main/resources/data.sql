@@ -4,6 +4,7 @@ CREATE TABLE p_stores
     user_id          BIGINT COMMENT '가게 소유자 ID',
     category_id      BINARY(16) NOT NULL COMMENT '카테고리 고유 ID',
     name             VARCHAR(100) NOT NULL COMMENT '가게 이름',
+    image_url        VARCHAR(255) COMMENT '가게 이미지',
     address          VARCHAR(200) NOT NULL COMMENT '가게 주소',
     jibun_address    VARCHAR(200) NOT NULL COMMENT '가게 지번 주소',
     phone_number     VARCHAR(20)  NOT NULL COMMENT '가게 전화번호',

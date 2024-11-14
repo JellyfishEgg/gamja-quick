@@ -12,8 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static com.sparta.gamjaquick.menu.entity.QMenu.menu;
 import static com.sparta.gamjaquick.store.entity.QStore.store;
 
 @RequiredArgsConstructor
@@ -66,4 +68,19 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
         return builder;
     }
+
+    @Override
+    public Optional<Store> findByIdWithRecentMenus(UUID storeId, int limit) {
+
+        Store result = queryFactory.selectFrom(store)
+                .leftJoin(store.menuList, menu).fetchJoin()
+                .where(store.id.eq(storeId)
+                        .and(store.isDeleted.eq(false)))
+                .orderBy(store.createdAt.desc())
+                .limit(limit)
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
 }

@@ -6,8 +6,10 @@ import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
+import com.sparta.gamjaquick.store.dto.request.StoreUpdateRequestDto;
 import com.sparta.gamjaquick.store.dto.response.StoreCreateResponseDto;
 import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
+import com.sparta.gamjaquick.store.dto.response.StoreWithMenusResponseDto;
 import com.sparta.gamjaquick.store.service.StoreService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,6 +44,28 @@ public class StoreController {
     public ApiResponseDto<?> getStoreList(@ModelAttribute StoreSearchParameter searchParameter) {
         PageResponseDto<StoreResponseDto> result = storeService.getStoreList(searchParameter);
         return ApiResponseDto.success(MessageType.RETRIEVE, result);
+    }
+
+    // 특정 가게 조회
+    @GetMapping("/{storeId}")
+    public ApiResponseDto<?> getStore(@PathVariable("storeId") String storeId) {
+        StoreWithMenusResponseDto result = storeService.getStore(storeId);
+        return ApiResponseDto.success(MessageType.RETRIEVE, result);
+    }
+
+    // 가게 수정
+    @PutMapping("/{storeId}")
+    public ApiResponseDto<?> updateStore(@PathVariable("storeId") String storeId,
+                                         @RequestBody @Valid StoreUpdateRequestDto requestDto) {
+        StoreResponseDto result = storeService.update(storeId, requestDto);
+        return ApiResponseDto.success(MessageType.UPDATE, result);
+    }
+
+    // 가게 삭제
+    @DeleteMapping("/{storeId}")
+    public ApiResponseDto<?> deleteStore(@PathVariable("storeId") String storeId) {
+        StoreResponseDto result = storeService.delete(storeId);
+        return ApiResponseDto.success(MessageType.DELETE, result);
     }
 
 }

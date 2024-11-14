@@ -50,7 +50,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Review review = new Review(
-                UUID.randomUUID(),
                 store,
                 order,
                 user,
@@ -61,7 +60,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
 
         return new ReviewResponseDto(
-                review.getId(),
+                review.getId().toString(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -83,7 +82,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
 
         return new ReviewResponseDto(
-                review.getId(),
+                review.getId().toString(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -111,7 +110,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
         return new ReviewResponseDto(
-                review.getId(),
+                review.getId().toString(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -129,7 +128,7 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.findAll().stream()
                 .filter(review -> !review.getIsDeleted())
                 .map(review -> new ReviewResponseDto(
-                        review.getId(),
+                        review.getId().toString(),
                         review.getStore().getId().toString(),
                         review.getOrder().getId().toString(),
                         review.getUser().getUsername(),
