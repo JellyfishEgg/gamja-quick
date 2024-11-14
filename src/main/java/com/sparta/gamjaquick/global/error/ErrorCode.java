@@ -15,6 +15,7 @@ public enum ErrorCode {
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "E-004", "요청한 리소스를 찾을 수 없습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "E-005", "인증에 실패했습니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "E-006", "접근 권한이 없습니다."),
+    JSON_CONVERSION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E-103", "JSON 변환 중 오류가 발생했습니다."),
 
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),
