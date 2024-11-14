@@ -15,6 +15,8 @@ public class StoreCreateRequestDto {
     @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하여야 합니다.")
     private String name;
 
+    private String imageUrl;
+
     @NotBlank(message = "도로명 주소를 입력해 주세요.")
     private String roadAddress;
 

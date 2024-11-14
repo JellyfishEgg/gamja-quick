@@ -10,4 +10,7 @@ public interface StoreRepository extends
         JpaRepository<Store, UUID>, StoreRepositoryCustom {
 
     Optional<Store> findByAddressOrJibunAddress(String address, String jibunAddress);
+
+    Optional<Store> findByIdAndIsDeletedFalse(UUID storeId);
+
 }

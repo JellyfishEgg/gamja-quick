@@ -3,7 +3,10 @@ package com.sparta.gamjaquick.payment.entity;
 import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -39,6 +42,7 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     public Payment(PaymentCreateRequestDto requestDto) {
@@ -62,4 +66,5 @@ public class Payment extends AuditingFields {
 //    private String failureReason;       // 결제가 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
 
 }
+
 
