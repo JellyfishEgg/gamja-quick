@@ -9,6 +9,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
@@ -18,8 +21,8 @@ import lombok.NoArgsConstructor;
 public class Review extends AuditingFields {
 
     @Id
-    @Column(length = 100)
-    private String id;
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
@@ -45,8 +48,8 @@ public class Review extends AuditingFields {
     @Column(nullable = false)
     private Boolean isDeleted = false;
 
-    public Review(String id, Store store, Order order, User user, int rating, String content, Boolean isHidden) {
-        this.id = id;
+    public Review(Store store, Order order, User user, int rating, String content, Boolean isHidden) {
+//        this.id = id;
         this.store = store;
         this.order = order;
         this.user = user;
