@@ -9,3 +9,4 @@ import lombok.NoArgsConstructor;
 public class PaymentUpdateRequestDto {
     private PaymentStatus status;
 }
+
