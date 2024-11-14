@@ -9,6 +9,7 @@ import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
 import com.sparta.gamjaquick.store.dto.response.StoreCreateResponseDto;
 import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
 import com.sparta.gamjaquick.store.service.StoreService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stores")
 @RequiredArgsConstructor
+@Tag(name = "Store", description = "가게 관련 API")
 public class StoreController {
 
     private final StoreService storeService;

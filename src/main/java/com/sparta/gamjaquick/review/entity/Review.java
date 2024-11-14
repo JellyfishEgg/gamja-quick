@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,7 +21,7 @@ public class Review extends AuditingFields {
 
     @Id
     @Column(length = 100)
-    private String id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
@@ -45,7 +47,7 @@ public class Review extends AuditingFields {
     @Column(nullable = false)
     private Boolean isDeleted = false;
 
-    public Review(String id, Store store, Order order, User user, int rating, String content, Boolean isHidden) {
+    public Review(UUID id, Store store, Order order, User user, int rating, String content, Boolean isHidden) {
         this.id = id;
         this.store = store;
         this.order = order;

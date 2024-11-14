@@ -3,6 +3,7 @@ package com.sparta.gamjaquick.review.controller;
 import com.sparta.gamjaquick.review.dto.request.ReviewRequestDto;
 import com.sparta.gamjaquick.review.dto.response.ReviewResponseDto;
 import com.sparta.gamjaquick.review.service.ReviewService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
+@Tag(name = "Review", description = "리뷰 관련 API")
 public class ReviewController {
 
     private final ReviewService reviewService;

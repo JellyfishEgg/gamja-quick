@@ -5,6 +5,7 @@ import com.sparta.gamjaquick.user.dto.request.UserUpdateRequestDto;
 import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
 import com.sparta.gamjaquick.user.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User", description = "유저 관련 API")
 public class UserController {
 
     private final UserService userService;

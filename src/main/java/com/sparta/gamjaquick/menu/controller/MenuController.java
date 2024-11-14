@@ -6,6 +6,7 @@ import com.sparta.gamjaquick.menu.dto.request.MenuRequestDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuDeleteReponseDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.service.MenuService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/stores/{store_id}")
 @RequiredArgsConstructor
+@Tag(name = "Menu", description = "메뉴 관련 API")
 public class MenuController {
 
     //전체적으로 응답 형식이 정해지면 응답은 수정예정입니당.

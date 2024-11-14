@@ -50,7 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Review review = new Review(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 store,
                 order,
                 user,
@@ -76,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewResponseDto updateReview(String reviewId, ReviewRequestDto reviewRequestDto) {
-        Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+        Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
         review.updateReview(reviewRequestDto.getRating(), reviewRequestDto.getContent(), reviewRequestDto.getIsHidden());
@@ -98,7 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(String reviewId, String deletedBy) {
-        Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+        Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
         review.deleteReview(deletedBy);
@@ -107,7 +107,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewResponseDto getReviewById(String reviewId) {
-        Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+        Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
         return new ReviewResponseDto(

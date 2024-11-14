@@ -7,6 +7,7 @@ import com.sparta.gamjaquick.common.request.SearchParameter;
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
+@Tag(name = "Category", description = "카테고리 관련 API")
 public class CategoryController {
 
     private final CategoryService categoryService;
