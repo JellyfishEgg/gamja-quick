@@ -1,10 +1,12 @@
 package com.sparta.gamjaquick.menu.dto.response;
 
 import com.sparta.gamjaquick.menu.entity.Menu;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 
 @Getter
 public class MenuResponseDto{
