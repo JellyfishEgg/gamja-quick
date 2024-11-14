@@ -39,7 +39,6 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
-    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     public Payment(PaymentCreateRequestDto requestDto) {
