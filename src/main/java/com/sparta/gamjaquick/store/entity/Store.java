@@ -5,6 +5,7 @@ import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
+import com.sparta.gamjaquick.store.dto.request.StoreUpdateRequestDto;
 import com.sparta.gamjaquick.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,9 @@ public class Store extends AuditingFields {
     @Column(length = 100, nullable = false)
     @Comment("가게 이름")
     private String name;
+
+    @Comment("가게 이미지")
+    private String imageUrl;
 
     @Column(length = 200, nullable = false)
     @Comment("가게 주소")
@@ -90,6 +94,7 @@ public class Store extends AuditingFields {
                 .user(user)
                 .category(category)
                 .name(dto.getName())
+                .imageUrl(dto.getImageUrl())
                 .address(dto.getRoadAddress())
                 .jibunAddress(dto.getJibunAddress())
                 .phoneNumber(dto.getPhoneNumber())
@@ -124,8 +129,25 @@ public class Store extends AuditingFields {
         }
     }
 
+    /**
+     * 가게 수정 (가게 이미지, 전화번호, 카테고리만 수정 가능)
+     */
+    public void update(StoreUpdateRequestDto requestDto, Category category) {
+        this.imageUrl = requestDto.getImageUrl();
+        this.phoneNumber = requestDto.getPhoneNumber();
+        this.category = category;
+    }
+
+    /**
+     * 가게 삭제
+     */
+    public void delete(String auditingUser) {
+        this.isDeleted = true;
+        this.storeStatus = StoreStatus.PERMANENTLY_CLOSED;
+        super.delete(auditingUser);
+    }
+
     public Store(UUID id){
         this.id = id;
     }
-
 }
