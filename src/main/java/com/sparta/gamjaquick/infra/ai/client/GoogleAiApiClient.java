@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.infra.ai.client;
 
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.error.exception.BusinessException;
 import com.sparta.gamjaquick.global.util.JsonConvertUtil;
 import com.sparta.gamjaquick.infra.ai.config.ApiConfig;
 import com.sparta.gamjaquick.infra.ai.dto.AiApiRequestDto;
@@ -24,7 +26,17 @@ public class GoogleAiApiClient implements AiApiClient {
 
     public AiApiResponseDto sendRequest(String prompt) {
         AiApiRequestDto aiApiRequestDto = AiApiRequestDto.createRequest(prompt + apiConfig.getInstruction());
-        return sendRequest(aiApiRequestDto);
+        long startTime = System.currentTimeMillis();
+
+        // API 요청 실행
+        AiApiResponseDto responseDto = sendRequest(aiApiRequestDto);
+
+        long endTime = System.currentTimeMillis();
+        long processingTime = endTime - startTime;
+
+        // 처리 시간을 응답 DTO에 설정
+        responseDto.setProcessingTime(processingTime);
+        return responseDto;
     }
 
     // GOOGLE AI API에 요청을 보내고 응답을 받아 처리
@@ -36,11 +48,15 @@ public class GoogleAiApiClient implements AiApiClient {
         String jsonRequest = jsonConvertUtil.convertJavaToJson(aiApiRequestDto);
         final HttpEntity<?> requestEntity = new HttpEntity<>(jsonRequest, headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange(getApiRequestUri(), HttpMethod.POST, requestEntity, String.class);
-        System.out.println("responseEntity = " + responseEntity);
-        log.info("GOOGLE AI API Status Code : {}", responseEntity.getStatusCode());
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(getApiRequestUri(), HttpMethod.POST, requestEntity, String.class);
+            log.info("GOOGLE AI API Status Code : {}", responseEntity.getStatusCode());
+            return jsonConvertUtil.convertJsonToJava(responseEntity.getBody(), AiApiResponseDto.class);
 
-        return jsonConvertUtil.convertJsonToJava(responseEntity.getBody(), AiApiResponseDto.class);
+        } catch (Exception e) {
+            log.error("GOOGLE AI API 에러 발생: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.AI_API_ERROR);
+        }
     }
 
     // AI API 요청에 필요한 URI를 생성

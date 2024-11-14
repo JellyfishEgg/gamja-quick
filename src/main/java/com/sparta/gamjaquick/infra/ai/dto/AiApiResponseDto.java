@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.infra.ai.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class AiApiResponseDto {
 
     private List<Candidate> candidates;
     private String modelVersion;
+    @Setter private long processingTime;
 
     public String getFirstCandidateText() {
         return candidates.stream()

@@ -17,11 +17,8 @@ public class AiApiService {
      * @param prompt AI 모델에 제공할 입력 텍스트 (프롬프트)
      * @return AI 모델이 생성한 응답 텍스트. 응답이 없거나 오류 발생 시 빈 문자열 반환
      */
-    public String generateText(String prompt) {
-        AiApiResponseDto response = aiApiClient.sendRequest(prompt);
-
-        // TODO: Log 테이블에 값 저장
-        return response.getFirstCandidateText();
+    public AiApiResponseDto generateText(String prompt) {
+        return aiApiClient.sendRequest(prompt);
     }
 
 }
