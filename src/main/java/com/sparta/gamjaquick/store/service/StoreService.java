@@ -6,10 +6,12 @@ import com.sparta.gamjaquick.common.request.StoreSearchParameter;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.error.exception.BusinessException;
-import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
+import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
 import com.sparta.gamjaquick.store.dto.response.StoreCreateResponseDto;
+import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
+import com.sparta.gamjaquick.store.dto.response.StoreWithMenusResponseDto;
 import com.sparta.gamjaquick.store.entity.Store;
 import com.sparta.gamjaquick.store.repository.StoreRepository;
 import com.sparta.gamjaquick.user.entity.User;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -67,12 +70,6 @@ public class StoreService {
         return StoreResponseDto.from(findStore);
     }
 
-    public Store findById(String storeId) {
-        return storeRepository.findById(UUID.fromString(storeId)).orElseThrow(
-                () -> new BusinessException(ErrorCode.STORE_NOT_FOUND)
-        );
-    }
-
     // 가게 목록 조회
     @Transactional(readOnly = true)
     public PageResponseDto<StoreResponseDto> getStoreList(StoreSearchParameter searchParameter) {
@@ -80,4 +77,26 @@ public class StoreService {
         Page<StoreResponseDto> result = stores.map(StoreResponseDto::from);
         return PageResponseDto.of(result);
     }
+
+    // 특정 가게 조회
+    @Transactional(readOnly = true)
+    public StoreWithMenusResponseDto getStore(String storeId) {
+        Store findStore = findByIdWithMenus(storeId, 5); // 최근 5개의 메뉴만 조회
+        List<Menu> menuList = findStore.getMenuList();
+
+        return StoreWithMenusResponseDto.from(findStore, menuList);
+    }
+
+    public Store findById(String storeId) {
+        return storeRepository.findByIdAndIsDeletedFalse(UUID.fromString(storeId)).orElseThrow(
+                () -> new BusinessException(ErrorCode.STORE_NOT_FOUND)
+        );
+    }
+
+    private Store findByIdWithMenus(String storeId, int limit) {
+        return storeRepository.findByIdWithRecentMenus(UUID.fromString(storeId), limit).orElseThrow(
+                () -> new BusinessException(ErrorCode.STORE_NOT_FOUND)
+        );
+    }
+
 }

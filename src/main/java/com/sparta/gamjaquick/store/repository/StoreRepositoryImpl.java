@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.gamjaquick.common.request.StoreSearchParameter;
+import com.sparta.gamjaquick.store.entity.QStore;
 import com.sparta.gamjaquick.store.entity.Store;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,8 +13,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static com.sparta.gamjaquick.menu.entity.QMenu.menu;
 import static com.sparta.gamjaquick.store.entity.QStore.store;
 
 @RequiredArgsConstructor
@@ -66,4 +69,17 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
         return builder;
     }
+
+    @Override
+    public Optional<Store> findByIdWithRecentMenus(UUID storeId, int limit) {
+        Store store = queryFactory.selectFrom(QStore.store)
+                .leftJoin(QStore.store.menuList, menu).fetchJoin()
+                .where(QStore.store.id.eq(storeId))
+                .orderBy(QStore.store.createdAt.desc())
+                .limit(limit)
+                .fetchOne();
+
+        return Optional.ofNullable(store);
+    }
+
 }

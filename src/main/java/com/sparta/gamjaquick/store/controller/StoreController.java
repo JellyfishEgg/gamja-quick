@@ -8,6 +8,7 @@ import com.sparta.gamjaquick.store.dto.request.StoreApprovalRequestDto;
 import com.sparta.gamjaquick.store.dto.request.StoreCreateRequestDto;
 import com.sparta.gamjaquick.store.dto.response.StoreCreateResponseDto;
 import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
+import com.sparta.gamjaquick.store.dto.response.StoreWithMenusResponseDto;
 import com.sparta.gamjaquick.store.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,13 @@ public class StoreController {
     @GetMapping("")
     public ApiResponseDto<?> getStoreList(@ModelAttribute StoreSearchParameter searchParameter) {
         PageResponseDto<StoreResponseDto> result = storeService.getStoreList(searchParameter);
+        return ApiResponseDto.success(MessageType.RETRIEVE, result);
+    }
+
+    // 특정 가게 조회
+    @GetMapping("/{storeId}")
+    public ApiResponseDto<?> getStore(@PathVariable("storeId") String storeId) {
+        StoreWithMenusResponseDto result = storeService.getStore(storeId);
         return ApiResponseDto.success(MessageType.RETRIEVE, result);
     }
 
