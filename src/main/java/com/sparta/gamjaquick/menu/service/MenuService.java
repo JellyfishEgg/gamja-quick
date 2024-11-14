@@ -10,7 +10,7 @@ import com.sparta.gamjaquick.menu.repository.MenuRepository;
 import com.sparta.gamjaquick.store.entity.Store;
 import com.sparta.gamjaquick.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +36,6 @@ public class MenuService {
     @Transactional
     public MenuDeleteReponseDto deleteMenu(UUID menuId) {
         Menu menu = checkMenu(menuId);
-        if(menu.getIsDeleted()){
-            throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
-        }
 
         return menu.deleteMenu(auditorAware.getCurrentAuditor().orElse(""));
     }
@@ -47,26 +44,38 @@ public class MenuService {
 
     public MenuResponseDto getMenu(UUID menuId) {
         Menu menu = checkMenu(menuId);
-        if(menu.getIsDeleted()){
-            throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
-        }
+
         return new MenuResponseDto(menu);
     }
 
     //페이징 해야대
-    public List<MenuResponseDto> getMenusByStore(UUID storeId, String keyword) {
+    public Page<MenuResponseDto> getMenusByStore(UUID storeId, String keyword, int page, int size) {
 
-        List<Menu> menuList = checkMenuList(storeId);
-        return menuList.stream().filter(menu -> !menu.getIsDeleted())
-                .map(MenuResponseDto::new).toList();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Menu> menuList = null;
+
+        if(keyword==null ||keyword.isEmpty()){
+            menuList = menuRepository.findAllByStoreIdAndIsDeletedFalse(storeId,pageable);
+        }else{
+            menuList = menuRepository.findAllByStoreIdAndNameContainingAndIsDeletedFalse(storeId, keyword, pageable);
+        }
+
+        if (menuList.isEmpty()){
+            throw new BusinessException(ErrorCode.MENU_NOT_FOUND);
+        }
+
+        return menuList.map(menu -> new MenuResponseDto(menu));
 
     }
 
     @Transactional
     public List<MenuDeleteReponseDto> deleteMenusByStore(UUID storeId) {
-        List<Menu> menuList = checkMenuList(storeId);
+        List<Menu> menuList = menuRepository.findAllByStoreIdAndIsDeletedFalse(storeId);
+        if(menuList.isEmpty()){
+            throw new BusinessException(ErrorCode.MENU_NOT_FOUND);
+        }
 
-        return menuList.stream().filter(menu -> !menu.getIsDeleted())
+        return menuList.stream()
                 .map(menu -> menu.deleteMenu(auditorAware.getCurrentAuditor().orElse("")))
                 .toList();
     }
@@ -75,26 +84,17 @@ public class MenuService {
     @Transactional
     public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
         Menu menu = checkMenu(menuId);
-        if(menu.getIsDeleted()){
-            throw new BusinessException(ErrorCode.MENU_ALREADY_DELETED);
-        }
         menu.updateByMenuDto(menuRequestDto);
         return new MenuResponseDto(menu);
     }
 
     public Menu checkMenu(UUID menuId){
-        return menuRepository.findById(menuId).orElseThrow(
+        return menuRepository.findByIdAndIsDeletedFalse(menuId).orElseThrow(
                 () -> new BusinessException(ErrorCode.MENU_NOT_FOUND)
         );
     }
 
-    public List<Menu> checkMenuList(UUID storeId){
-        List<Menu> menuList = menuRepository.findAllByStoreId(storeId);
-        if(menuList.isEmpty()){
-            throw new BusinessException(ErrorCode.MENU_NOT_FOUND);
-        }
-        return menuList;
-    }
+
 
 
 
