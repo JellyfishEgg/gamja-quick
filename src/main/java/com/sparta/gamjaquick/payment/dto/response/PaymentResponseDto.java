@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.payment.dto.response;
 
 import com.sparta.gamjaquick.payment.entity.Payment;
+import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class PaymentResponseDto {
     private int paymentAmount;       // 결제 금액
     private String paymentMethod;
     private LocalDateTime paymentDate;  // 결제 일시(감사로그와 용도구분)
-    private String status;              // 결제 상태(성공/실패)
+    private PaymentStatus status;           // 결제 상태(성공/실패)
     private String paymentKey;          // 결제사에서 결제 넘어가면 반환해주는 키
     //private String failureReason;       // 결제가 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
 
@@ -28,7 +29,7 @@ public class PaymentResponseDto {
                 .paymentAmount(payment.getPaymentAmount())
                 .paymentMethod(payment.getPaymentMethod())
                 .paymentDate(payment.getPaymentDate())
-                .status(payment.getStatus().name())
+                .status(payment.getStatus())
                 .paymentKey(payment.getPaymentKey())
                 .build();
     }

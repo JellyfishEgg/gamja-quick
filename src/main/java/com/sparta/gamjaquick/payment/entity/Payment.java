@@ -49,10 +49,10 @@ public class Payment extends AuditingFields {
     private boolean isDeleted = false;
 
     public Payment(PaymentCreateRequestDto requestDto) {
-        this.orderId = requestDto.getOrderId();
+        //this.orderId = requestDto.getOrderId();
         //this.paymentAmount = requestDto.getPaymentAmount();
         this.paymentMethod = requestDto.getPaymentMethod();
-        this.status = requestDto.getStatus();
+        //this.status = requestDto.getStatus();
         //this.paymentKey = requestDto.getPaymentKey();
     }
 

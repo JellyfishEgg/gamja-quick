@@ -20,7 +20,8 @@ public class OrderResponseDto {
     private UUID orderId;                    // 주문 ID
     private String orderNumber;              // 주문 번호
     private Long userId;                     // 사용자 ID
-    private UUID storeId;                    // 가게 ID
+    private UUID storeId;
+    private LocalDateTime orderDate = LocalDateTime.now();// 가게 ID
     private OrderStatus orderStatus;         // 주문 상태
     private OrderType orderType;             // 주문 타입 (e.g., online, offline)
     private int totalPrice;                  // 총 가격
