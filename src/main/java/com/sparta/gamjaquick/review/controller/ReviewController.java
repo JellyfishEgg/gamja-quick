@@ -23,7 +23,7 @@ public class ReviewController {
     }
 
     @PostMapping("/stores/{store_id}/orders/{order_id}")
-    @Operation(summary = "리뷰 작성", description = "고객이 리뷰를 작성 할 때 사용하는 API")
+    @Operation(summary = "리뷰 작성", description = "리뷰를 작성 할 때 사용하는 API")
     public ReviewResponseDto createReview(
             @PathVariable("store_id") String storeId,
             @PathVariable("order_id") String orderId,
@@ -33,7 +33,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{review_id}")
-    @Operation(summary = "리뷰 수정", description = "고객이 리뷰를 수정 할 때 사용하는 API")
+    @Operation(summary = "리뷰 수정", description = "리뷰를 수정 할 때 사용하는 API")
     public ReviewResponseDto updateReview(
             @PathVariable("review_id") String reviewId,
             @RequestBody ReviewRequestDto reviewRequestDto) {

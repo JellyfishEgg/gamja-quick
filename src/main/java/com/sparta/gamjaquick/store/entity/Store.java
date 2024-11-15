@@ -70,6 +70,7 @@ public class Store extends AuditingFields {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Comment("가게 운영 상태")
+    @Builder.Default
     private StoreStatus storeStatus = StoreStatus.PENDING_APPROVAL;
 
     @Column(length = 500)
@@ -80,6 +81,7 @@ public class Store extends AuditingFields {
     @Comment("삭제 여부")
     private boolean isDeleted;
 
+    @Builder.Default
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
     private List<Menu> menuList = new ArrayList<>();
 

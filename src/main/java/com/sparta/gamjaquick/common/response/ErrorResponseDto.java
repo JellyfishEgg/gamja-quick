@@ -52,4 +52,14 @@ public class ErrorResponseDto {
         }
     }
 
+    //썩은 감자가 스웨거 커스텀때문에 추가한 코드긴 한데여... 저도 잘 이해가 안대서 .... 도저히 path를 어떻게 넣는건지...
+    public static ErrorResponseDto from(ErrorCode errorCode) {
+        return ErrorResponseDto.builder()
+                .status("failure") // 기본 상태를 "failure"로 설정
+                .message(errorCode.name()) // ErrorCode의 메시지를 사용
+                .error(ErrorDetails.of(errorCode, errorCode.getMessage(), "N/A")) // 기본 에러 세부사항 설정
+                .timestamp(LocalDateTime.now()) // 현재 시간 설정
+                .build();
+    }
+
 }

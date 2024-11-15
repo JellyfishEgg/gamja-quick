@@ -1,7 +1,9 @@
 package com.sparta.gamjaquick.config.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import jakarta.persistence.EntityManager;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -23,4 +25,6 @@ public class JpaConfig {
         // TODO: security 적용 시 해당 로직 수정
         return "user1"::describeConstable;
     }
+
+
 }

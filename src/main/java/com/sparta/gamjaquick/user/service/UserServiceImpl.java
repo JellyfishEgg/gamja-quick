@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.user.service;
 
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
+import com.sparta.gamjaquick.user.entity.RoleType;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
                 signUpDto.getEmail(),
                 signUpDto.getPassword(),
                 signUpDto.getPhoneNumber(),
-                User.RoleType.CUSTOMER,
+                RoleType.CUSTOMER,
                 true,
                 false,
                 null,
