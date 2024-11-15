@@ -1,8 +1,6 @@
 package com.sparta.gamjaquick.user.service;
 
-import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
-import com.sparta.gamjaquick.user.entity.RoleType;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
@@ -11,11 +9,11 @@ import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.sparta.gamjaquick.common.response.MessageType;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,7 +34,7 @@ public class UserServiceImpl implements UserService {
                 signUpDto.getEmail(),
                 signUpDto.getPassword(),
                 signUpDto.getPhoneNumber(),
-                RoleType.CUSTOMER,
+                User.RoleType.CUSTOMER,
                 true,
                 false,
                 null,
@@ -83,10 +81,18 @@ public class UserServiceImpl implements UserService {
         return new UserDeleteResponseDto(id, deletedBy);
     }
 
+    // 사용자 검색 및 페이징 처리
     @Override
-    public ApiResponseDto searchUsers(UserSearchParameter searchParam, int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size);
-        Page<User> userPage = userRepository.findAll(pageable);
-        return ApiResponseDto.success(MessageType.RETRIEVE, userPage);
+    public Page<User> searchUsers(UserSearchParameter searchParam, int page, int size) {
+        // 정렬기준과 정렬방향 설정
+        PageRequest pageable = PageRequest.of(page, size, searchParam.getSortDirection(), searchParam.getSortBy());
+
+        // 사용자 검색 조건을 통해 페이징된 결과를 반환
+        return userRepository.findByUsernameContainingOrEmailContainingOrPhoneNumberContaining(
+                searchParam.getUsername(),
+                searchParam.getEmail(),
+                searchParam.getPhoneNumber(),
+                pageable
+        );
     }
 }

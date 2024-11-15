@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 public class UserSearchParameter {
     private String username;
     private String email;
-    private Sort.Direction sortDirection = Sort.Direction.DESC;
-    private String sortBy = "createdAt"; // 기본 정렬 기준
+    private String phoneNumber;
+    private String sortBy = "createdAt";
+    private Sort.Direction sortDirection = Sort.Direction.ASC;
+
 }
