@@ -9,6 +9,7 @@ import com.sparta.gamjaquick.payment.dto.request.PaymentUpdateRequestDto;
 import com.sparta.gamjaquick.payment.dto.response.PaymentResponseDto;
 import com.sparta.gamjaquick.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class PaymentController {
 
     @GetMapping("/{paymentId}")
     @ApiErrorCodeExample(ErrorCode.RESOURCE_NOT_FOUND)
+    @Parameter(name = "paymentId", description = "결제 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "결제 내역 조회", description = "결제 내역을 조회 할 때 사용하는 API")
     public ApiResponseDto<PaymentResponseDto> getPayment(@PathVariable UUID paymentId) {
         PaymentResponseDto result = paymentService.getPayment(paymentId);
@@ -41,6 +43,7 @@ public class PaymentController {
 
     @PutMapping("/{paymentId}")
     @ApiErrorCodeExample(ErrorCode.RESOURCE_NOT_FOUND)
+    @Parameter(name = "paymentId", description = "결제 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "결제 수정", description = "결제를 수정 할 때 사용하는 API")
     public ApiResponseDto<PaymentResponseDto> updatePaymentStatus(
             @PathVariable UUID paymentId,
@@ -51,6 +54,7 @@ public class PaymentController {
 
     @DeleteMapping("/{paymentId}")
     @ApiErrorCodeExample(ErrorCode.RESOURCE_NOT_FOUND)
+    @Parameter(name = "paymentId", description = "결제 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "결제 취소", description = "결제를 취소 할 때 사용하는 API")
     public ApiResponseDto<MessageType> deletePayment(@PathVariable UUID paymentId) {
         paymentService.deletePayment(paymentId);
