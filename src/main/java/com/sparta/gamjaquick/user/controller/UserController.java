@@ -10,6 +10,7 @@ import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,9 +41,10 @@ public class UserController {
 
     // 특정 사용자 조회
     @Operation(summary = "특정 사용자 조회", description = "특정 사용자를 조회 할 때 사용하는 API")
-    @GetMapping("/{user_id}")
-    @PreAuthorize("hasRole('ADMIN') or (#user_id == authentication.principal.id)")  // 관리자나 자기 자신만 조회 가능
-    public UserResponseDto getUserById(@PathVariable("user_id") Long id) {
+    @GetMapping("/{userId}")
+    @Parameter(name = "userId", description = "유저 ID", example = "1")
+    @PreAuthorize("hasRole('ADMIN') or (#userId == authentication.principal.id)")  // 관리자나 자기 자신만 조회 가능
+    public UserResponseDto getUserById(@PathVariable("userId") Long id) {
         return userService.getUserById(id);
     }
 
@@ -56,17 +58,19 @@ public class UserController {
 
     // 사용자 정보 수정
     @Operation(summary = "사용자 정보 수정", description = "사용자가 정보를 수정 할 때 사용하는 API")
-    @PutMapping("/{user_id}")
-    @PreAuthorize("hasRole('ADMIN') or (#user_id == authentication.principal.id)")  // 관리자나 자기 자신만 수정 가능
-    public UserResponseDto updateUser(@PathVariable("user_id") Long id, @RequestBody UserUpdateRequestDto updateDto) {
+    @PutMapping("/{userId}")
+    @Parameter(name = "userId", description = "유저 ID", example = "1")
+    @PreAuthorize("hasRole('ADMIN') or (#userId == authentication.principal.id)")  // 관리자나 자기 자신만 수정 가능
+    public UserResponseDto updateUser(@PathVariable("userId") Long id, @RequestBody UserUpdateRequestDto updateDto) {
         return userService.updateUser(id, updateDto);
     }
 
     // 사용자 삭제 (회원 탈퇴)
     @Operation(summary = "회원 탈퇴", description = "사용자가 회원 탈퇴를 할 때 사용하는 API")
-    @DeleteMapping("/{user_id}")
-    @PreAuthorize("hasRole('ADMIN') or (#user_id == authentication.principal.id)")  // 관리자나 자기 자신만 삭제 가능
-    public UserDeleteResponseDto deleteUser(@PathVariable("user_id") Long id) {
+    @DeleteMapping("/{userId}")
+    @Parameter(name = "userId", description = "유저 ID", example = "1")
+    @PreAuthorize("hasRole('ADMIN') or (#userId == authentication.principal.id)")  // 관리자나 자기 자신만 삭제 가능
+    public UserDeleteResponseDto deleteUser(@PathVariable("userId") Long id) {
         return userService.deleteUser(id, "admin");  // 삭제자는 "admin"
     }
 

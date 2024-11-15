@@ -15,6 +15,7 @@ import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
 import com.sparta.gamjaquick.store.dto.response.StoreWithMenusResponseDto;
 import com.sparta.gamjaquick.store.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class StoreController {
 
     // 가게 등록 승인(관리자)
     @PatchMapping("/{storeId}/approve")
+    @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.STORE_ALREADY_APPROVED, ErrorCode.STORE_NOT_FOUND      })
     @Operation(summary = "가게 등록 승인", description = "가게 등록 승인을 할 때 사용하는 API")
     public ApiResponseDto<?> approveStore(@PathVariable("storeId") String storeId,
@@ -58,6 +60,7 @@ public class StoreController {
     // 특정 가게 조회
     @GetMapping("/{storeId}")
     @ApiErrorCodeExample(ErrorCode.STORE_NOT_FOUND)
+    @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "특정 가게 조회", description = "하나의 가게를 조회 할 때 사용하는 API")
     public ApiResponseDto<?> getStore(@PathVariable("storeId") String storeId) {
         StoreWithMenusResponseDto result = storeService.getStore(storeId);
@@ -67,6 +70,7 @@ public class StoreController {
     // 가게 수정
     @PutMapping("/{storeId}")
     @ApiErrorCodeExample(ErrorCode.STORE_NOT_FOUND)
+    @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "가게 수정", description = "가게를 수정 할 때 사용하는 API")
     public ApiResponseDto<?> updateStore(@PathVariable("storeId") String storeId,
                                          @RequestBody @Valid StoreUpdateRequestDto requestDto) {
@@ -76,6 +80,7 @@ public class StoreController {
 
     // 가게 삭제
     @DeleteMapping("/{storeId}")
+    @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.STORE_NOT_FOUND, ErrorCode.STORE_ALREADY_DELETED})
     @Operation(summary = "가게 삭제", description = "가게를 삭제 할 때 사용하는 API")
     public ApiResponseDto<?> deleteStore(@PathVariable("storeId") String storeId) {
