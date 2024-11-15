@@ -39,6 +39,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     // queryDSL
     implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
     implementation "com.querydsl:querydsl-core"
