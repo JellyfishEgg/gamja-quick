@@ -6,6 +6,7 @@ import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import com.sparta.gamjaquick.payment.dto.request.PaymentUpdateRequestDto;
 import com.sparta.gamjaquick.payment.dto.response.PaymentResponseDto;
 import com.sparta.gamjaquick.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/payments")
+@Tag(name = "Payment", description = "결제 관련 API")
 public class PaymentController {
 
     private final PaymentService paymentService;
