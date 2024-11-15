@@ -32,9 +32,14 @@ public enum ErrorCode {
     STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다."),
     STORE_ALREADY_DELETED(HttpStatus.CONFLICT, "ST-007", "이미 삭제된 가게입니다."),
 
-    //메뉴 관련
+    // 메뉴 관련
     MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),
-    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MEN-002","해당 메뉴를 찾을 수 없습니다.")
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MEN-002","해당 메뉴를 찾을 수 없습니다."),
+
+    // 파일 관련
+    FILE_NAME_MISSING(HttpStatus.BAD_REQUEST, "FILE_001", "파일 이름이 없거나 비어 있습니다."),
+    UNSUPPORTED_FILE_FORMAT(HttpStatus.BAD_REQUEST, "FILE_002", "지원하지 않는 포맷 형식입니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_003", "파일 업로드 중 오류가 발생했습니다.")
     ;
 
     private final HttpStatus httpStatus;
