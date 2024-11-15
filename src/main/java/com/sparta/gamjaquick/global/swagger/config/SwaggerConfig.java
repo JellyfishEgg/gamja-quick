@@ -2,10 +2,10 @@ package com.sparta.gamjaquick.global.swagger.config;
 
 
 import com.sparta.gamjaquick.common.response.ErrorResponseDto;
+import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExample;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExamples;
 import com.sparta.gamjaquick.global.swagger.ExampleHolder;
-import com.sparta.gamjaquick.global.error.ErrorCode;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -15,11 +15,13 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,11 @@ import java.util.stream.Collectors;
 //일단은 jwt 없는 버전으로 해놓았습니다. 추후 인증 구현되면 수정하겠습니다
 
 @Configuration
+@RequiredArgsConstructor
 public class SwaggerConfig {
+
+    private final RequestMappingHandlerMapping handlerMapping;
+
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
@@ -50,9 +56,12 @@ public class SwaggerConfig {
             ApiErrorCodeExamples apiErrorCodeExamples = handlerMethod.getMethodAnnotation(
                     ApiErrorCodeExamples.class);
 
+            // URL 경로 정보 가져오기
+            String urlPath = getUrlPath(handlerMethod);
+
             // @ApiErrorCodeExamples 어노테이션이 붙어있다면
             if (apiErrorCodeExamples != null) {
-                generateErrorCodeResponseExample(operation, apiErrorCodeExamples.value());
+                generateErrorCodeResponseExample(operation, apiErrorCodeExamples.value(), urlPath);
             } else {
                 ApiErrorCodeExample apiErrorCodeExample = handlerMethod.getMethodAnnotation(
                         ApiErrorCodeExample.class);
@@ -60,7 +69,7 @@ public class SwaggerConfig {
                 // @ApiErrorCodeExamples 어노테이션이 붙어있지 않고
                 // @ApiErrorCodeExample 어노테이션이 붙어있다면
                 if (apiErrorCodeExample != null) {
-                    generateErrorCodeResponseExample(operation, apiErrorCodeExample.value());
+                    generateErrorCodeResponseExample(operation, apiErrorCodeExample.value(), urlPath);
                 }
             }
 
@@ -68,16 +77,27 @@ public class SwaggerConfig {
         };
     }
 
+    // URL 경로 정보 가져오기
+    private String getUrlPath(HandlerMethod handlerMethod) {
+        return handlerMapping.getHandlerMethods().entrySet().stream()
+                .filter(entry -> entry.getValue().equals(handlerMethod))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .map(RequestMappingInfo::getPathPatternsCondition)
+                .map(patternsCondition -> patternsCondition.getPatterns().iterator().next().getPatternString())
+                .orElse("");
+    }
+
 
     // 여러 개의 에러 응답값 추가
-    private void generateErrorCodeResponseExample(Operation operation, ErrorCode[] errorCodes) {
+    private void generateErrorCodeResponseExample(Operation operation, ErrorCode[] errorCodes, String urlPath) {
         ApiResponses responses = operation.getResponses();
 
         // ExampleHolder(에러 응답값) 객체를 만들고 에러 코드별로 그룹화
         Map<Integer, List<ExampleHolder>> statusWithExampleHolders = Arrays.stream(errorCodes)
                 .map(
                         errorCode -> ExampleHolder.builder()
-                                .holder(getSwaggerExample(errorCode))
+                                .holder(getSwaggerExample(errorCode, urlPath))
                                 .code(errorCode.getHttpStatus().value())
                                 .name(errorCode.name())
                                 .build()
@@ -89,12 +109,12 @@ public class SwaggerConfig {
     }
 
     // 단일 에러 응답값 예시 추가
-    private void generateErrorCodeResponseExample(Operation operation, ErrorCode errorCode) {
+    private void generateErrorCodeResponseExample(Operation operation, ErrorCode errorCode, String urlPath) {
         ApiResponses responses = operation.getResponses();
 
         // ExampleHolder 객체 생성 및 ApiResponses에 추가
         ExampleHolder exampleHolder = ExampleHolder.builder()
-                .holder(getSwaggerExample(errorCode))
+                .holder(getSwaggerExample(errorCode, urlPath))
                 .name(errorCode.name())
                 .code(errorCode.getHttpStatus().value())
                 .build();
@@ -102,8 +122,8 @@ public class SwaggerConfig {
     }
 
     // ErrorResponseDto 형태의 예시 객체 생성
-    private Example getSwaggerExample(ErrorCode errorCode) {
-        ErrorResponseDto errorResponseDto = ErrorResponseDto.from(errorCode );
+    private Example getSwaggerExample(ErrorCode errorCode, String urlPath) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.from(errorCode, urlPath);
         Example example = new Example();
         example.setValue(errorResponseDto);
 
