@@ -2,11 +2,9 @@ package com.sparta.gamjaquick.payment.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
+import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -29,6 +27,7 @@ public class Payment extends AuditingFields {
     @JoinColumn(name = "order_id", nullable = false)
     private UUID orderId;
 
+    @Setter
     @Column(name = "payment_amount", length = 100, nullable = false)
     private int paymentAmount;
 
@@ -48,26 +47,25 @@ public class Payment extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    // PaymentCreateRequestDto에서 결제 수단만 받음
     public Payment(PaymentCreateRequestDto requestDto) {
-        //this.orderId = requestDto.getOrderId();
-        //this.paymentAmount = requestDto.getPaymentAmount();
         this.paymentMethod = requestDto.getPaymentMethod();
-        //this.status = requestDto.getStatus();
-        //this.paymentKey = requestDto.getPaymentKey();
+        this.status = PaymentStatus.PENDING;  // 기본 상태 PENDING
+        this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
     }
 
-
+    // 결제 상태 업데이트
     public void updateStatus(PaymentStatus status) {
         this.status = status;
     }
 
+    // 소프트 삭제
     public void changeToDeleted() {
         this.isDeleted = true;
     }
 
-
 //    @Column(name = "failure_reason")
-//    private String failureReason;       // 결제가 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
+//    private String failureReason;       // 결제 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
 
 }
 

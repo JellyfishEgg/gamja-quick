@@ -41,30 +41,30 @@ public class OrderService {
     private final MenuRepository menuRepository;
 
     public OrderResponseDto createOrder(OrderCreateRequestDto requestDto) {
-        // 배송지정보저장
+        // 배송지 정보 저장
         DeliveryInfo deliveryInfo = new DeliveryInfo(
                 requestDto.getDeliveryInfo().getAddress(),
                 requestDto.getDeliveryInfo().getRequest()
         );
         deliveryInfoRepository.save(deliveryInfo);
 
-        // 결제정보저장
+        // 결제 정보 저장
         Payment payment = new Payment(requestDto.getPayment());
         paymentRepository.save(payment);
 
-        // 총금액계산, 주문메뉴저장
+        // 총금액 계산, 주문 메뉴 저장
         List<OrderItem> orderItems = new ArrayList<>();
         int totalPrice = 0;
         for (OrderCreateRequestDto.OrderItemRequestDto itemDto : requestDto.getOrderItems()) {
             Menu menu = menuRepository.findById(itemDto.getMenuId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.MENU_NOT_FOUND));
-            totalPrice += itemDto.getPrice() * itemDto.getQuantity();
+            totalPrice += itemDto.getPrice() * itemDto.getQuantity(); // 총 금액 계산
 
             OrderItem orderItem = new OrderItem(menu, itemDto.getQuantity(), itemDto.getPrice());
             orderItems.add(orderItem);
         }
 
-        // 완성된주문서저장
+        // 완성된 주문서 저장
         Order order = new Order(
                 requestDto.getUserId(),
                 requestDto.getStoreId(),
@@ -76,13 +76,17 @@ public class OrderService {
                 orderItems
         );
 
-        // 5. 주문 항목 저장 (배달 정보 및 결제 정보와 함께)
+        // 주문 항목 저장 (배달 정보 및 결제 정보와 함께)
         orderItemRepository.saveAll(orderItems);
 
-        // 6. 주문 저장
+        // 주문 저장
         order = orderRepository.save(order);
 
-        // 7. 주문 응답 DTO 반환
+        // 결제 금액 totalPrice값으로 대입
+        payment.setPaymentAmount(totalPrice);
+        paymentRepository.save(payment);
+
+        // 주문 응답
         return OrderResponseDto.from(order);
     }
 

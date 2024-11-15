@@ -69,14 +69,6 @@ public class Order extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-//    public Order(OrderCreateRequestDto requestDto) {
-//        this.userId = requestDto.getUserId();
-//        this.storeId = requestDto.getStoreId();
-//        this.orderNumber = requestDto.getOrderNumber();
-//        this.totalPrice = requestDto.getTotalPrice();
-//        this.type = requestDto.getType();
-//        this.status = OrderStatus.PREPARING; // 초기 상태
-//    }
 public Order(Long userId, UUID storeId, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
     this.userId = userId;
     this.storeId = storeId;
@@ -86,7 +78,7 @@ public Order(Long userId, UUID storeId, String orderNumber, int totalPrice, Orde
     this.deliveryInfo = deliveryInfo; // 배달 정보 설정
     this.payment = payment;           // 결제 정보 설정
     this.orderItems = orderItems;     // 주문 항목 설정
-    this.status = OrderStatus.PREPARING; // 기본 상태
+    this.status = OrderStatus.PENDING; // 기본 상태 PENDING으로 설정
 }
 
     // 소프트 삭제
