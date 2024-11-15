@@ -1,12 +1,14 @@
 package com.sparta.gamjaquick.orderItem.dto.response;
 
+import com.sparta.gamjaquick.orderItem.entity.OrderItem;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
+@Builder
 public class OrderItemResponseDto {
     private UUID orderItemId;     // 주문 항목 ID
     private UUID menuId;          // 메뉴 ID
@@ -14,11 +16,12 @@ public class OrderItemResponseDto {
     private int unitPrice;        // 개별 메뉴 가격
     private int totalPrice;       // 총액 (수량 * 가격)
 
-    public OrderItemResponseDto(UUID orderItemId, UUID menuId, int quantity, int unitPrice, int totalPrice) {
-        this.orderItemId = orderItemId;
-        this.menuId = menuId;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.totalPrice = totalPrice;
+    public static OrderItemResponseDto from(OrderItem orderItem) {
+        return OrderItemResponseDto.builder()
+                .orderItemId(orderItem.getId())
+                .menuId(orderItem.getMenu().getId())
+                .quantity(orderItem.getQuantity())
+                .totalPrice(orderItem.getTotalPrice())
+                .build();
     }
 }

@@ -1,6 +1,9 @@
 package com.sparta.gamjaquick.order.dto.request;
 
+import com.sparta.gamjaquick.order.entity.DeliveryInfo;
+import com.sparta.gamjaquick.order.entity.OrderType;
 import com.sparta.gamjaquick.orderItem.dto.request.OrderItemRequestDto;
+import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,38 +15,31 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderCreateRequestDto {
 
+    private Long userId;
     private UUID storeId;
     private String orderNumber;
     private List<OrderItemRequestDto> orderItems;
-    private String orderType;  // orderType 필드 정의
-    private PaymentInfo payment;
+    private OrderType type;
+    private PaymentCreateRequestDto payment;
+    private DeliveryInfoRequestDto deliveryInfo;
 
-
-    public void setStoreId(UUID storeId) {
+    public OrderCreateRequestDto(Long userId, UUID storeId, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
+        this.userId = userId;
         this.storeId = storeId;
-    }
-
-    public void setOrderItems(List<OrderItemRequestDto> orderItems) {
+        this.orderNumber = orderNumber;
         this.orderItems = orderItems;
-    }
-
-    public void setOrderType(String orderType) {
-        this.orderType = orderType;
-    }
-
-//    public void setDeliveryInfo(DeliveryInfo deliveryInfo) {
-//        this.deliveryInfo = deliveryInfo;
-//    }
-
-    public void setPayment(PaymentInfo payment) {
+        this.type = type;
         this.payment = payment;
+        this.deliveryInfo = deliveryInfo;
     }
+
 
     @Getter
     @Setter
     public static class OrderItemRequestDto {
         private UUID menuId;
         private int quantity;
+        private int price;
     }
 
     @Getter
@@ -51,12 +47,5 @@ public class OrderCreateRequestDto {
     public static class DeliveryInfoRequestDto {
         private String address;
         private String request;
-    }
-
-    @Getter
-    @Setter
-    public static class PaymentInfo {
-        private int amount;
-        private String paymentMethod;
     }
 }

@@ -87,6 +87,10 @@ public class Store extends AuditingFields {
         return isDeleted;
     }
 
+    /**
+     * 가게 생성 정적 팩토리 메서드
+     * @return Store
+     */
     public static Store from(User user, Category category, StoreCreateRequestDto dto) {
         Region region = Region.from(dto);
 
