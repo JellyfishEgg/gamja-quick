@@ -1,11 +1,15 @@
 package com.sparta.gamjaquick.user.controller;
 
+import com.sparta.gamjaquick.common.response.ApiResponseDto;
+import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserUpdateRequestDto;
 import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
 import com.sparta.gamjaquick.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,5 +54,13 @@ public class UserController {
     public UserDeleteResponseDto deleteUser(@PathVariable("user_id") Long id) {
         // 삭제자를 관리자로 지정.
         return userService.deleteUser(id, "admin");
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')") // 관리자가 접근할 수 있도록 설정
+    public ResponseEntity<ApiResponseDto> searchUsers(@ModelAttribute UserSearchParameter searchParam,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.searchUsers(searchParam, page, size));
     }
 }
