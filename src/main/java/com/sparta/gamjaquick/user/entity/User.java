@@ -52,7 +52,12 @@ public class User extends AuditingFields {
 
     private LocalDateTime deletedAt;
 
-    public User(Object o, String username, String nickname, String email, String password, String phoneNumber, RoleType roleType, boolean b, boolean b1, Object o1, Object o2, Object o3) {
-        super();
+    public User(String username, String nickname, String email, String password, String phoneNumber, RoleType role) {
+        this.username = username;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
     }
 }
