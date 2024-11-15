@@ -2,10 +2,7 @@ package com.sparta.gamjaquick.order.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.order.dto.request.OrderCreateRequestDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,19 +18,26 @@ import java.util.UUID;
 public class DeliveryInfo extends AuditingFields {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
+    @OneToOne(mappedBy = "deliveryInfo")
+    private Order order;
+
+    @Column(name = "address", nullable = false)
     private String address;
 
+    @Column(name = "request")
     private String request;
 
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
     @Builder
-    private DeliveryInfo(String address, String request) {
+    public DeliveryInfo(String address, String request) {
         this.address = address;
         this.request = request;
+        this.isDeleted = false;
     }
 
     public boolean getIsDeleted() {

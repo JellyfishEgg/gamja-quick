@@ -14,7 +14,8 @@ import java.util.UUID;
 public class PaymentResponseDto {
     private UUID id;                  // 결제 ID (Primary Key)
     private UUID orderId;               // 주문 ID
-    private String paymentAmount;       // 결제 금액
+    private int paymentAmount;       // 결제 금액
+    private String paymentMethod;
     private LocalDateTime paymentDate;  // 결제 일시(감사로그와 용도구분)
     private String status;              // 결제 상태(성공/실패)
     private String paymentKey;          // 결제사에서 결제 넘어가면 반환해주는 키
@@ -25,6 +26,7 @@ public class PaymentResponseDto {
                 .id(payment.getId())
                 .orderId(payment.getOrderId())
                 .paymentAmount(payment.getPaymentAmount())
+                .paymentMethod(payment.getPaymentMethod())
                 .paymentDate(payment.getPaymentDate())
                 .status(payment.getStatus().name())
                 .paymentKey(payment.getPaymentKey())
