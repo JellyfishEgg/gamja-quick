@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.global.swagger;
 
 import com.sparta.gamjaquick.global.error.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

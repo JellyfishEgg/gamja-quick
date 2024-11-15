@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.common.response;
 
 import com.sparta.gamjaquick.global.error.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

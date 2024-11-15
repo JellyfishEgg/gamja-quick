@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -102,7 +103,7 @@ public class SwaggerConfig {
 
     // ErrorResponseDto 형태의 예시 객체 생성
     private Example getSwaggerExample(ErrorCode errorCode) {
-        ErrorResponseDto errorResponseDto = ErrorResponseDto.from(errorCode);
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.from(errorCode );
         Example example = new Example();
         example.setValue(errorResponseDto);
 
