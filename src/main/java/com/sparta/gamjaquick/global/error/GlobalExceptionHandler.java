@@ -2,6 +2,7 @@ package com.sparta.gamjaquick.global.error;
 
 import com.sparta.gamjaquick.common.response.ErrorResponseDto;
 import com.sparta.gamjaquick.global.error.exception.BusinessException;
+import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExample;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     // 비즈니스 로직 실행 중 에러가 발생할 경우
+    @ApiErrorCodeExample(ErrorCode.CATEGORY_ALREADY_DELETED)
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<ErrorResponseDto> handleBusinessException(BusinessException e, HttpServletRequest request) {
         log.error("BusinessException occurred: {}", e.getMessage());

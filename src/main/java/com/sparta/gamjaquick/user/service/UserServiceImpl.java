@@ -12,9 +12,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,7 +103,6 @@ public class UserServiceImpl implements UserService {
     public UserDeleteResponseDto deleteUser(Long id, String deletedBy) {
         User user = userRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
         user.setIsDeleted(true);
         user.setDeletedBy(deletedBy);
         user.setDeletedAt(java.time.LocalDateTime.now());
@@ -121,8 +120,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Page<User> searchUsers(UserSearchParameter searchParam, int page, int size) {
+        // 정렬기준과 정렬방향 설정
         PageRequest pageable = PageRequest.of(page, size, searchParam.getSortDirection(), searchParam.getSortBy());
 
+        // 사용자 검색 조건을 통해 페이징된 결과를 반환
         return userRepository.findByUsernameContainingOrEmailContainingOrPhoneNumberContaining(
                 searchParam.getUsername(),
                 searchParam.getEmail(),

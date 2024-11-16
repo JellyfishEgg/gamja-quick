@@ -38,9 +38,11 @@ public class User extends AuditingFields {
     @Column(nullable = false, length = 20)
     private RoleType role;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isPublic = true;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isDeleted = false;
 

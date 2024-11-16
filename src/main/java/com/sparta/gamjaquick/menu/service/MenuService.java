@@ -85,6 +85,7 @@ public class MenuService {
             throw new BusinessException(ErrorCode.MENU_NOT_FOUND);
         }
 
+
         return menuList.stream()
                 .map(menu -> menu.deleteMenu(auditorAware.getCurrentAuditor().orElse("")))
                 .toList();
