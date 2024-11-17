@@ -56,7 +56,7 @@ public class Order extends AuditingFields {
     private OrderStatus status;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payment_id", nullable = true)
     private Payment payment;
 
     @Column(name = "cancel_reason", length = 100, nullable = false)

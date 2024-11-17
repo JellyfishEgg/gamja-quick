@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.payment.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
+import com.sparta.gamjaquick.order.entity.Order;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,11 +21,12 @@ public class Payment extends AuditingFields {
     @Id
     @GeneratedValue
     @UuidGenerator
-    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = true)
     private UUID id;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "order_id", nullable = false)
-    private UUID orderId;
+    private Order order;
 
     @Setter
     @Column(name = "payment_amount", length = 100, nullable = false)
@@ -36,6 +38,7 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate = LocalDateTime.now();
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.PENDING; // 기본값 설정;
@@ -52,8 +55,8 @@ public class Payment extends AuditingFields {
     @Column(name = "refund_amount", nullable = false)
     private int refundAmount;
 
-    @Column(name = "refund_date", nullable = false)
-    private LocalDateTime refundDate;
+    @Column(name = "refund_date", nullable = true)
+    private LocalDateTime refundDate = LocalDateTime.now();
 
     // PaymentCreateRequestDto에서 결제 수단만 받음
     public Payment(PaymentCreateRequestDto requestDto) {
@@ -62,19 +65,32 @@ public class Payment extends AuditingFields {
         //this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
     }
 
+    @PrePersist
+    public void setDefaultStatus() {
+        if (this.status == null) {
+            this.status = PaymentStatus.PENDING;
+        }
+    }
+
+    public void setOrder(Order order) {
+        this.order = new Order();  // 기존의 주문 객체를 참조로 설정하거나
+    }
+
     // 결제 상태 업데이트
     public void updateStatus(PaymentStatus status) {
         this.status = status;
     }
 
     // 결제 성공 때 추가 반환 정보
-    public void setAdditionalPaymentInfo(String paymentKey, LocalDateTime paymentDate) {
+    public void setAdditionalPaymentInfo(UUID id, String paymentKey, LocalDateTime paymentDate) {
+        this.id = id;
         this.paymentKey = paymentKey;
         this.paymentDate = paymentDate;
     }
 
     // 결제 취소 때 환불 정보
-    public void setRefund(String refundMethod, int refundAmount, LocalDateTime refundDate) {
+    public void setRefund(UUID id, String refundMethod, int refundAmount, LocalDateTime refundDate) {
+        this.id = id;
         this.refundMethod = refundMethod;
         this.refundAmount = refundAmount;
         this.refundDate = refundDate;

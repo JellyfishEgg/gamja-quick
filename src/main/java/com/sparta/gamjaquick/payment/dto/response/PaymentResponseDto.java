@@ -31,7 +31,7 @@ public class PaymentResponseDto {
     public static PaymentResponseDto from(Payment payment) {
         if (payment.getStatus() == PaymentStatus.PENDING) { // 주문 생성 때
             return PaymentResponseDto.builder()
-                    .orderId(payment.getOrderId())
+                    .orderId(payment.getOrder().getId())
                     .paymentMethod(payment.getPaymentMethod())
                     .status(payment.getStatus())
                     .build();
@@ -39,7 +39,7 @@ public class PaymentResponseDto {
         } else if (payment.getStatus() == PaymentStatus.SUCCESS) { // 주문 성공 때
             return PaymentResponseDto.builder()
                     .id(payment.getId())
-                    .orderId(payment.getOrderId())
+                    .orderId(payment.getOrder().getId())
                     .paymentAmount(payment.getPaymentAmount())
                     .paymentMethod(payment.getPaymentMethod())
                     .paymentDate(payment.getPaymentDate())
@@ -50,7 +50,7 @@ public class PaymentResponseDto {
         } else if (payment.getStatus() == PaymentStatus.CANCELLED) { //주문 취소 때
             return PaymentResponseDto.builder()
                     .id(payment.getId())
-                    .orderId(payment.getOrderId())
+                    .orderId(payment.getOrder().getId())
                     .status(payment.getStatus())
                     .paymentKey(payment.getPaymentKey())
                     .refundMethod(payment.getRefundMethod()) 
