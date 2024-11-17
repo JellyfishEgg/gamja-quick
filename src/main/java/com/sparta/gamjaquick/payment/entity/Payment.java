@@ -2,7 +2,6 @@ package com.sparta.gamjaquick.payment.entity;
 
 import com.sparta.gamjaquick.common.AuditingFields;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
-import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -47,11 +46,20 @@ public class Payment extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Column(name = "refund_method", nullable = false)
+    private String refundMethod;
+
+    @Column(name = "refund_amount", nullable = false)
+    private int refundAmount;
+
+    @Column(name = "refund_date", nullable = false)
+    private LocalDateTime refundDate;
+
     // PaymentCreateRequestDto에서 결제 수단만 받음
     public Payment(PaymentCreateRequestDto requestDto) {
         this.paymentMethod = requestDto.getPaymentMethod();
-        this.status = PaymentStatus.PENDING;  // 기본 상태 PENDING
-        this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
+        this.status = getStatus();
+        //this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
     }
 
     // 결제 상태 업데이트
@@ -59,13 +67,27 @@ public class Payment extends AuditingFields {
         this.status = status;
     }
 
+    // 결제 성공 때 추가 반환 정보
+    public void setAdditionalPaymentInfo(String paymentKey, LocalDateTime paymentDate) {
+        this.paymentKey = paymentKey;
+        this.paymentDate = paymentDate;
+    }
+
+    // 결제 취소 때 환불 정보
+    public void setRefund(String refundMethod, int refundAmount, LocalDateTime refundDate) {
+        this.refundMethod = refundMethod;
+        this.refundAmount = refundAmount;
+        this.refundDate = refundDate;
+    }
+
     // 소프트 삭제
     public void changeToDeleted() {
         this.isDeleted = true;
     }
 
+    // 추후 리팩토링으로 추가 예정
 //    @Column(name = "failure_reason")
-//    private String failureReason;       // 결제 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
+//    private String failureReason;   // 결제 실패시 이유(잔액부족, 은행시스템이나 카드사 점검중, 정지된 카드 등등)
 
 }
 

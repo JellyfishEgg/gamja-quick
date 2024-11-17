@@ -17,6 +17,7 @@ import com.sparta.gamjaquick.order.repository.OrderRepository;
 import com.sparta.gamjaquick.orderItem.entity.OrderItem;
 import com.sparta.gamjaquick.orderItem.repository.OrderItemRepository;
 import com.sparta.gamjaquick.payment.entity.Payment;
+import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import com.sparta.gamjaquick.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -111,15 +113,33 @@ public class OrderService {
     }
 
     public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDto requestDto) {
+        // 주문 존재 확인
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (requestDto.getStatus() == OrderStatus.CANCELLED) {
-            order.cancelOrder(requestDto.getCancelReason());
+        // 주문 성공
+        if (requestDto.getStatus() == OrderStatus.COMPLETED) {
+            Payment payment = order.getPayment(); // 결제 성공으로 업데이트
+            payment.getId(); //?
+            payment.updateStatus(PaymentStatus.SUCCESS);
+            payment.setAdditionalPaymentInfo("payment_key_generated", LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            order.updateStatus(requestDto.getStatus());
+
+        // 주문 실패
+        } else if (requestDto.getStatus() == OrderStatus.CANCELLED) {
+            Payment payment = order.getPayment();
+            payment.getId();
+            payment.updateStatus(PaymentStatus.CANCELLED);
+            payment.setRefund(payment.getPaymentMethod(), payment.getPaymentAmount(), LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            order.updateStatus(OrderStatus.CANCELLED);
+
         } else {
             order.updateStatus(requestDto.getStatus());
         }
-
         return OrderResponseDto.from(order);
     }
 
