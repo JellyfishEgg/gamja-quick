@@ -75,9 +75,9 @@ public class Order extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-public Order(Long userId, UUID storeId, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
-    this.userId = userId;
-    this.storeId = storeId;
+public Order(User user, Store store, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
+    this.user = user;
+    this.store = store;
     this.orderNumber = orderNumber;
     this.totalPrice = totalPrice;
     this.type = type;
