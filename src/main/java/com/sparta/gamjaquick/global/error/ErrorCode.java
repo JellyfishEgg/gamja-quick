@@ -36,6 +36,8 @@ public enum ErrorCode {
     STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다."),
     STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다."),
     STORE_ALREADY_DELETED(HttpStatus.CONFLICT, "ST-007", "이미 삭제된 가게입니다."),
+    STORE_UPDATE_UNAUTHORIZED(HttpStatus.FORBIDDEN, "ST-008", "본인 소유의 가게만 수정할 수 있습니다."),
+
 
     // 메뉴 관련
     MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),

@@ -1,7 +1,7 @@
 package com.sparta.gamjaquick.config.security;
 
-
 import com.sparta.gamjaquick.config.security.jwt.JwtAuthenticationFilter;
+import com.sparta.gamjaquick.config.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,13 +34,12 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-
                 // 요청 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입 & 로그인은 인증 없이 허용
                         .requestMatchers("/api/users/signup", "/api/users/login",
                                 "/swagger-ui/**","/swagger-resources/**",
-                                "/v3/api-docs/**").permitAll()
+                                "/v3/api-docs/**", "/api/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()

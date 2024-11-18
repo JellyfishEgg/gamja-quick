@@ -4,6 +4,7 @@ import com.sparta.gamjaquick.common.request.StoreSearchParameter;
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
+import com.sparta.gamjaquick.config.security.UserDetailsImpl;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExample;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExamples;
 import com.sparta.gamjaquick.global.error.ErrorCode;
@@ -20,8 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,18 +32,14 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @GetMapping("/auth")
-    public Authentication auth() {
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
-
     // 가게 등록 신청(가게 주인, 관리자인 경우는 바로 등록)
     @PostMapping("")
     @ApiErrorCodeExamples({ErrorCode.STORE_APPROVAL_PENDING, ErrorCode.STORE_ALREADY_EXISTS})
     @Operation(summary = "가게 등록 신청", description = "가게 등록 신청을 할 때 사용하는 API")
-    @PreAuthorize("hasAnyAuthority('MASTER', 'OWNER')")
-    public ApiResponseDto<?> registerStore(@RequestBody @Valid StoreCreateRequestDto requestDto) {
-        StoreCreateResponseDto result = storeService.registerStore(requestDto);
+    @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
+    public ApiResponseDto<?> registerStore(@RequestBody @Valid StoreCreateRequestDto requestDto,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        StoreCreateResponseDto result = storeService.registerStore(requestDto, userDetails.getUser());
         return ApiResponseDto.success(MessageType.CREATE, result);
     }
 
@@ -84,8 +80,9 @@ public class StoreController {
     @Operation(summary = "가게 수정", description = "가게를 수정 할 때 사용하는 API")
     @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
     public ApiResponseDto<?> updateStore(@PathVariable("storeId") String storeId,
-                                         @RequestBody @Valid StoreUpdateRequestDto requestDto) {
-        StoreResponseDto result = storeService.update(storeId, requestDto);
+                                         @RequestBody @Valid StoreUpdateRequestDto requestDto,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        StoreResponseDto result = storeService.update(storeId, requestDto, userDetails.getUser());
         return ApiResponseDto.success(MessageType.UPDATE, result);
     }
 
@@ -95,8 +92,9 @@ public class StoreController {
     @ApiErrorCodeExamples({ErrorCode.STORE_NOT_FOUND, ErrorCode.STORE_ALREADY_DELETED})
     @Operation(summary = "가게 삭제", description = "가게를 삭제 할 때 사용하는 API")
     @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
-    public ApiResponseDto<?> deleteStore(@PathVariable("storeId") String storeId) {
-        StoreResponseDto result = storeService.delete(storeId);
+    public ApiResponseDto<?> deleteStore(@PathVariable("storeId") String storeId,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        StoreResponseDto result = storeService.delete(storeId, userDetails.getUser());
         return ApiResponseDto.success(MessageType.DELETE, result);
     }
 
