@@ -1,6 +1,9 @@
 package com.sparta.gamjaquick.user.service;
 
+import com.sparta.gamjaquick.config.security.jwt.JwtProvider;
+import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
+import com.sparta.gamjaquick.user.dto.response.UserLoginResponseDto;
 import com.sparta.gamjaquick.user.entity.RoleType;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
@@ -13,6 +16,7 @@ import jakarta.persistence.Enumerated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +29,9 @@ import static com.sparta.gamjaquick.user.entity.RoleType.CUSTOMER;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
+
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
@@ -129,5 +136,27 @@ public class UserServiceImpl implements UserService {
                 searchParam.getPhoneNumber(),
                 pageable
         );
+    }
+
+    /**
+     * 사용자 로그인 처리.
+     * 유효한 사용자 정보를 입력받아 JWT 토큰을 생성하고 반환합니다.
+     *
+     * @param loginRequest 사용자 로그인 요청 데이터
+     * @return UserLoginResponseDto 로그인 응답 데이터 (username, token)
+     * @throws IllegalArgumentException 유효하지 않은 사용자 정보가 입력된 경우
+     */
+    @Override
+    public UserLoginResponseDto login(UserLoginRequestDto loginRequest) {
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
+        String token = jwtProvider.createToken(user.getUsername(), user.getRole().name());
+
+        return new UserLoginResponseDto(user.getUsername(), token);
     }
 }
