@@ -4,6 +4,11 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+src/main/resources/application**
+http/
+
+### queryDSL ###
+src/main/generated/
 
 ### STS ###
 .apt_generated
