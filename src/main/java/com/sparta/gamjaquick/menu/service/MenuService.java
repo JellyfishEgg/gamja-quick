@@ -19,6 +19,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,20 +37,24 @@ public class MenuService {
     private final AiApiService aiApiService;
     private final AiRequestLogService aiRequestLogService;
 
-    public MenuResponseDto createMenu(UUID storeId, MenuRequestDto menuRequestDto) {
-        //으아악 여기 나중에 고치기 !!!!!
+    public MenuResponseDto createMenu(UUID storeId, MenuRequestDto menuRequestDto, User user) {
+
+        checkUser(storeId,user);
+
         Store store = storeService.findById(String.valueOf(storeId));
         Menu menu=menuRepository.save(new Menu(store, menuRequestDto));
         return new MenuResponseDto(menu);
     }
 
     @Transactional
-    public MenuDeleteReponseDto deleteMenu(UUID menuId) {
+    public MenuDeleteReponseDto deleteMenu(UUID storeId,UUID menuId, User user) {
+
+        checkUser(storeId,user);
+
         Menu menu = checkMenu(menuId);
 
         return menu.deleteMenu(auditorAware.getCurrentAuditor().orElse(""));
     }
-
 
 
     public MenuResponseDto getMenu(UUID menuId) {
@@ -79,7 +84,11 @@ public class MenuService {
     }
 
     @Transactional
-    public List<MenuDeleteReponseDto> deleteMenusByStore(UUID storeId) {
+    public List<MenuDeleteReponseDto> deleteMenusByStore(UUID storeId, User user) {
+
+        checkUser(storeId,user);
+
+
         List<Menu> menuList = menuRepository.findAllByStoreIdAndIsDeletedFalse(storeId);
         if(menuList.isEmpty()){
             throw new BusinessException(ErrorCode.MENU_NOT_FOUND);
@@ -93,7 +102,10 @@ public class MenuService {
 
 
     @Transactional
-    public MenuResponseDto updateMenu(UUID menuId, MenuRequestDto menuRequestDto) {
+    public MenuResponseDto updateMenu(UUID storeId, UUID menuId, MenuRequestDto menuRequestDto, User user) {
+
+        checkUser(storeId,user);
+
         Menu menu = checkMenu(menuId);
         menu.updateByMenuDto(menuRequestDto);
         return new MenuResponseDto(menu);
@@ -106,9 +118,10 @@ public class MenuService {
     }
 
     @Transactional
-    public ContentResponseDto generateMenuDescription(String storeId, ContentRequestDto requestDto) {
+    public ContentResponseDto generateMenuDescription(UUID storeId, ContentRequestDto requestDto, User user) {
+        checkUser(storeId, user);
         AiApiResponseDto responseDto = aiApiService.generateText(requestDto.getContent());
-        Store findStore = storeService.findById(storeId);
+        Store findStore = storeService.findById(String.valueOf(storeId));
 
         // 비동기로 AiRequestLog 저장
         CompletableFuture.runAsync(() -> {
@@ -116,5 +129,16 @@ public class MenuService {
         });
 
         return ContentResponseDto.from(responseDto.getFirstCandidateText());
+    }
+
+
+    public void checkUser(UUID storeId,User user) {
+        //user에서 받은 권한이 들어갈 예정 ex) user.getRole().equals("OWNER")
+
+//        Store store = storeService.findById(String.valueOf(storeId));
+//        if(store.getUser().getId() != user.getId()){
+//            throw new BusinessException(ErrorCode.FORBIDDEN);
+//        }
+
     }
 }

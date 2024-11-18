@@ -20,7 +20,9 @@ public class SecurityConfig {
                 // 요청 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입 & 로그인은 인증 없이 허용
-                        .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
+                        .requestMatchers("/api/users/signup", "/api/users/login",
+                                "/swagger-ui/**","/swagger-resources/**",
+                                "/v3/api-docs/**").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 );
