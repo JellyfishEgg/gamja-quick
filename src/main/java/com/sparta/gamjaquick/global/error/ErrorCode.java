@@ -18,6 +18,9 @@ public enum ErrorCode {
     JSON_CONVERSION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E-103", "JSON 변환 중 오류가 발생했습니다."),
     AI_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI-001", "AI API 호출 중 오류가 발생했습니다."),
 
+    // 유저 관련
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-001", "존재하지 않는 사용자입니다."),
+
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CAT-002", "존재하지 않는 카테고리입니다."),
@@ -35,6 +38,9 @@ public enum ErrorCode {
     // 메뉴 관련
     MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MEN-002","해당 메뉴를 찾을 수 없습니다."),
+
+    // 리뷰 관련
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "존재하지 않는 리뷰입니다."),
 
     // 파일 관련
     FILE_NAME_MISSING(HttpStatus.BAD_REQUEST, "FILE_001", "파일 이름이 없거나 비어 있습니다."),

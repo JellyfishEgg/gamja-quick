@@ -7,22 +7,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
+@RequiredArgsConstructor
 @Tag(name = "Review", description = "리뷰 관련 API")
 public class ReviewController {
 
     private final ReviewService reviewService;
-
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
-    }
 
     @PostMapping("/stores/{storeId}/orders/{orderId}")
     @Parameters(
@@ -72,4 +68,5 @@ public class ReviewController {
     public List<ReviewResponseDto> getAllReviews() {
         return reviewService.getAllReviews();
     }
+
 }
