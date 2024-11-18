@@ -36,7 +36,7 @@ public class SecurityConfig {
                         // 회원가입 & 로그인은 인증 없이 허용
                         .requestMatchers("/api/users/signup", "/api/users/login",
                                 "/swagger-ui/**","/swagger-resources/**",
-                                "/v3/api-docs/**").permitAll()
+                                "/v3/api-docs/**", "/api/health").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

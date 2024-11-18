@@ -110,6 +110,26 @@ public class Store extends AuditingFields {
     }
 
     /**
+     * 관리자의 가게 생성 정적 팩토리 메서드
+     * @return Store
+     */
+    public static Store fromAdmin(User user, Category category, StoreCreateRequestDto dto) {
+        Region region = Region.from(dto);
+
+        return Store.builder()
+                .user(user)
+                .category(category)
+                .name(dto.getName())
+                .imageUrl(dto.getImageUrl())
+                .address(dto.getRoadAddress())
+                .jibunAddress(dto.getJibunAddress())
+                .phoneNumber(dto.getPhoneNumber())
+                .region(region)
+                .storeStatus(StoreStatus.APPROVED)
+                .build();
+    }
+
+    /**
      * 가게가 승인 대기 상태인지 확인합니다.
      * @return 승인 대기 상태이면 true, 그렇지 않으면 false
      */
