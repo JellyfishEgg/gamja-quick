@@ -60,8 +60,7 @@ public class Order extends AuditingFields {
     @Column(name = "status")
     private OrderStatus status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment_id", nullable = true)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "order")
     private Payment payment;
 
     @Column(name = "cancel_reason", length = 100, nullable = false)
@@ -75,14 +74,14 @@ public class Order extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-public Order(User user, Store store, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
+public Order(User user, Store store, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, List<OrderItem> orderItems) {
     this.user = user;
     this.store = store;
     this.orderNumber = orderNumber;
     this.totalPrice = totalPrice;
     this.type = type;
     this.deliveryInfo = deliveryInfo; // 배달 정보 설정
-    this.payment = payment;           // 결제 정보 설정
+//    this.payment = payment;           // 결제 정보 설정
     this.orderItems = orderItems;     // 주문 항목 설정
     this.status = OrderStatus.PENDING; // 기본 상태 PENDING으로 설정
 }
