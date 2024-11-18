@@ -6,6 +6,8 @@ import com.sparta.gamjaquick.orderItem.entity.OrderItem;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import com.sparta.gamjaquick.payment.entity.Payment;
 import com.sparta.gamjaquick.payment.entity.PaymentStatus;
+import com.sparta.gamjaquick.store.entity.Store;
+import com.sparta.gamjaquick.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -24,16 +26,16 @@ import java.util.UUID;
 public class Order extends AuditingFields {
 
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
-    @Column(name = "user_id", length = 100, nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)  // 여러 주문이 하나의 유저에 속함
+    @JoinColumn(name = "user_id")  // 외래 키 이름
+    private User user;
 
-    @Column(name = "store_id", length = 100, nullable = false)
-    private UUID storeId;
+    @ManyToOne(fetch = FetchType.LAZY)  // 여러 주문이 하나의 유저에 속함
+    @JoinColumn(name = "store_id")  // 외래 키 이름
+    private Store store;
 
     @Column(name = "order_number", length = 100, nullable = false)
     private String orderNumber;
@@ -59,7 +61,7 @@ public class Order extends AuditingFields {
     private OrderStatus status;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payment_id", nullable = true)
     private Payment payment;
 
     @Column(name = "cancel_reason", length = 100, nullable = false)
@@ -73,24 +75,16 @@ public class Order extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-//    public Order(OrderCreateRequestDto requestDto) {
-//        this.userId = requestDto.getUserId();
-//        this.storeId = requestDto.getStoreId();
-//        this.orderNumber = requestDto.getOrderNumber();
-//        this.totalPrice = requestDto.getTotalPrice();
-//        this.type = requestDto.getType();
-//        this.status = OrderStatus.PREPARING; // 초기 상태
-//    }
-public Order(Long userId, UUID storeId, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
-    this.userId = userId;
-    this.storeId = storeId;
+public Order(User user, Store store, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, Payment payment, List<OrderItem> orderItems) {
+    this.user = user;
+    this.store = store;
     this.orderNumber = orderNumber;
     this.totalPrice = totalPrice;
     this.type = type;
     this.deliveryInfo = deliveryInfo; // 배달 정보 설정
     this.payment = payment;           // 결제 정보 설정
     this.orderItems = orderItems;     // 주문 항목 설정
-    this.status = OrderStatus.PREPARING; // 기본 상태
+    this.status = OrderStatus.PENDING; // 기본 상태 PENDING으로 설정
 }
 
     // 소프트 삭제
