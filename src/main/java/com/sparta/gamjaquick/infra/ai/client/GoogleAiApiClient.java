@@ -24,6 +24,12 @@ public class GoogleAiApiClient implements AiApiClient {
     private final JsonConvertUtil jsonConvertUtil;
     private final ApiConfig apiConfig;
 
+    /**
+     * GOOGLE AI에 응답 요청
+     * @param prompt 요청 내용
+     * @return AiApiResponseDto
+     */
+    @Override
     public AiApiResponseDto sendRequest(String prompt) {
         AiApiRequestDto aiApiRequestDto = AiApiRequestDto.createRequest(prompt + apiConfig.getInstruction());
         long startTime = System.currentTimeMillis();

@@ -4,13 +4,17 @@ import com.sparta.gamjaquick.common.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Entity
 @Table(name = "p_users")
 public class User extends AuditingFields {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,9 +48,14 @@ public class User extends AuditingFields {
     private String updatedBy;
     private String deletedBy;
 
-    public enum RoleType {
-        CUSTOMER,
-        OWNER,
-        MASTER
+    private LocalDateTime deletedAt;
+
+    public User(String username, String nickname, String email, String password, String phoneNumber, RoleType role) {
+        this.username = username;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
     }
 }

@@ -1,53 +1,44 @@
 package com.sparta.gamjaquick.review.service;
 
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.error.exception.BusinessException;
+import com.sparta.gamjaquick.order.entity.Order;
+import com.sparta.gamjaquick.order.repository.OrderRepository;
 import com.sparta.gamjaquick.review.dto.request.ReviewRequestDto;
 import com.sparta.gamjaquick.review.dto.response.ReviewResponseDto;
 import com.sparta.gamjaquick.review.entity.Review;
 import com.sparta.gamjaquick.review.repository.ReviewRepository;
 import com.sparta.gamjaquick.store.entity.Store;
-import com.sparta.gamjaquick.store.repository.StoreRepository;
+import com.sparta.gamjaquick.store.service.StoreService;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
-import com.sparta.gamjaquick.order.entity.Order;
-import com.sparta.gamjaquick.order.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final StoreRepository storeRepository;
+    private final StoreService storeService;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
 
-    @Autowired
-    public ReviewServiceImpl(
-            ReviewRepository reviewRepository,
-            StoreRepository storeRepository,
-            UserRepository userRepository,
-            OrderRepository orderRepository) {
-        this.reviewRepository = reviewRepository;
-        this.storeRepository = storeRepository;
-        this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
-    }
-
+    @Transactional
     @Override
     public ReviewResponseDto createReview(String storeId, String orderId, Long userId, ReviewRequestDto reviewRequestDto) {
-        UUID storeUUID = UUID.fromString(storeId);
-        Store store = storeRepository.findById(storeUUID)
-                .orElseThrow(() -> new IllegalArgumentException("Store not found"));
+        Store store = storeService.findById(storeId);
 
         Order order = orderRepository.findById(UUID.fromString(orderId))
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Review review = new Review(
                 store,
@@ -59,8 +50,11 @@ public class ReviewServiceImpl implements ReviewService {
         );
         reviewRepository.save(review);
 
+        // 해당 가게의 평점 업데이트
+        updateStoreRating(review);
+
         return new ReviewResponseDto(
-                review.getId().toString(),
+                review.getId(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -73,16 +67,20 @@ public class ReviewServiceImpl implements ReviewService {
         );
     }
 
+    @Transactional
     @Override
     public ReviewResponseDto updateReview(String reviewId, ReviewRequestDto reviewRequestDto) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
         review.updateReview(reviewRequestDto.getRating(), reviewRequestDto.getContent(), reviewRequestDto.getIsHidden());
         reviewRepository.save(review);
 
+        // 해당 가게의 평점 업데이트
+        updateStoreRating(review);
+
         return new ReviewResponseDto(
-                review.getId().toString(),
+                review.getId(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -95,22 +93,27 @@ public class ReviewServiceImpl implements ReviewService {
         );
     }
 
+    @Transactional
     @Override
     public void deleteReview(String reviewId, String deletedBy) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
         review.deleteReview(deletedBy);
+
+        // 해당 가게의 평점 업데이트
+        updateStoreRating(review);
+
         reviewRepository.save(review);
     }
 
     @Override
     public ReviewResponseDto getReviewById(String reviewId) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
         return new ReviewResponseDto(
-                review.getId().toString(),
+                review.getId(),
                 review.getStore().getId().toString(),
                 review.getOrder().getId().toString(),
                 review.getUser().getUsername(),
@@ -128,7 +131,7 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.findAll().stream()
                 .filter(review -> !review.getIsDeleted())
                 .map(review -> new ReviewResponseDto(
-                        review.getId().toString(),
+                        review.getId(),
                         review.getStore().getId().toString(),
                         review.getOrder().getId().toString(),
                         review.getUser().getUsername(),
@@ -141,4 +144,20 @@ public class ReviewServiceImpl implements ReviewService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    // 가게의 평균 평점을 구하는 로직
+    private void updateStoreRating(Review review) {
+        Store store = review.getStore();
+
+        // 평점 평균 계산
+        List<Review> reviews = reviewRepository.findByStoreAndIsDeletedFalse(store);
+        double averageRating = reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+
+        // 변경된 값 저장
+        store.updateRating(averageRating);
+    }
+
 }

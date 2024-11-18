@@ -40,15 +40,18 @@ public class Order extends AuditingFields {
     @Column(name = "order_number", length = 100, nullable = false)
     private String orderNumber;
 
+    @Builder.Default
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate = LocalDateTime.now();
 
+    @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
 
+    @Builder.Default
     @OneToOne(cascade = CascadeType.ALL) // 배달 정보와 1:1 관계
     @JoinColumn(name = "delivery_info_id", nullable = false)
     private DeliveryInfo deliveryInfo = new DeliveryInfo();
@@ -68,6 +71,7 @@ public class Order extends AuditingFields {
     @Column(name = "type")
     private OrderType type;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
