@@ -2,9 +2,11 @@ package com.sparta.gamjaquick.user.controller;
 
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
+import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserUpdateRequestDto;
+import com.sparta.gamjaquick.user.dto.response.UserLoginResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
 import com.sparta.gamjaquick.user.entity.User;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -125,5 +128,16 @@ public class UserController {
     @PostMapping("/logout")
     public ApiResponseDto<String> logout() {
         return ApiResponseDto.success(MessageType.RETRIEVE, "로그아웃 성공");
+    }
+  
+     * 사용자 로그인 API
+     * 로그인 성공 시 JWT 토큰을 반환
+     * @param loginRequest 로그인 요청 데이터 (username, password)
+     * @return ApiResponseDto 형식으로 로그인 응답 데이터 반환
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponseDto> login(@RequestBody UserLoginRequestDto loginRequest) {
+        UserLoginResponseDto response = userService.login(loginRequest);
+        return ResponseEntity.ok(ApiResponseDto.success(MessageType.RETRIEVE, response));
     }
 }

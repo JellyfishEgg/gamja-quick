@@ -1,9 +1,11 @@
 package com.sparta.gamjaquick.user.service;
 
+import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserUpdateRequestDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
+import com.sparta.gamjaquick.user.dto.response.UserLoginResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -55,4 +57,13 @@ public interface UserService {
      * @return Page<User>
      */
     Page<User> searchUsers(UserSearchParameter searchParam, int page, int size);
+
+    /**
+     * 사용자 로그인 처리
+     * 입력된 로그인 데이터를 기반으로 JWT 토큰을 생성하여 반환
+     *
+     * @param loginRequest 사용자 로그인 요청 데이터
+     * @return UserLoginResponseDto 로그인 응답 데이터 (username, token)
+     */
+    UserLoginResponseDto login(UserLoginRequestDto loginRequest);
 }

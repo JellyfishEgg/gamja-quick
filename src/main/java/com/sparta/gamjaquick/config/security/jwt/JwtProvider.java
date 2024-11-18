@@ -2,6 +2,7 @@
 
     import io.jsonwebtoken.*;
     import io.jsonwebtoken.security.Keys;
+    import jakarta.annotation.PostConstruct;
     import lombok.RequiredArgsConstructor;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
     import org.springframework.security.core.Authentication;
@@ -11,6 +12,8 @@
 
     import javax.crypto.SecretKey;
     import java.util.Date;
+    import java.util.HashMap;
+    import java.util.Map;
 
     @Component
     @RequiredArgsConstructor
@@ -18,7 +21,12 @@
 
         private final JwtProperties jwtProperties;
         private final UserDetailsService userDetailsService;
-        private final SecretKey secretKey = Keys.hmacShaKeyFor("6B3E3D511FB5EBB3BDFB865F46A54".getBytes());
+        private SecretKey secretKey;
+
+        @PostConstruct
+        public void init() {
+            secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
+        }
 
         /**
          * JWT 토큰 생성
@@ -31,12 +39,15 @@
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
 
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("roles", roles);
+
             return Jwts.builder()
                     .setSubject(username)
-                    .claim("roles", roles)
+                    .setClaims(claims)
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
-                    .signWith(secretKey, SignatureAlgorithm.HS256)
+                    .signWith(secretKey)
                     .compact();
         }
 
@@ -84,4 +95,6 @@
                 return false;
             }
         }
+
+
     }
