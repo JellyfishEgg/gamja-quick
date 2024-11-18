@@ -4,6 +4,8 @@ import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExample;
 import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.order.dto.response.OrderResponseDto;
+import com.sparta.gamjaquick.order.service.OrderService;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import com.sparta.gamjaquick.payment.dto.request.PaymentUpdateRequestDto;
 import com.sparta.gamjaquick.payment.dto.response.PaymentResponseDto;
@@ -24,11 +26,16 @@ import java.util.UUID;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final OrderService orderService;
 
     @PostMapping("")
     @Operation(summary = "결제 생성", description = "결제를 생성 할 때 사용하는 API")
     public ApiResponseDto<PaymentResponseDto> createPayment(@RequestBody @Valid PaymentCreateRequestDto requestDto) {
-        PaymentResponseDto result = paymentService.createPayment(requestDto);
+        // orderId를 사용해 OrderService에서 totalAmount 가져오기
+        UUID orderId = requestDto.getOrderId();
+        OrderResponseDto orderResponse = orderService.getOrder(orderId);
+        int totalPrice = orderResponse.getTotalPrice();
+        PaymentResponseDto result = paymentService.createPayment(requestDto, totalPrice);
         return ApiResponseDto.success(MessageType.CREATE, result);
     }
 

@@ -23,13 +23,14 @@ public class Payment extends AuditingFields {
     private UUID id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = true)
     private Order order;
 
     @Setter
     @Column(name = "payment_amount", length = 100, nullable = false)
     private int paymentAmount;
 
+    @Setter
     @Column(name = "payment_method", length = 100, nullable = false)
     private String paymentMethod;
 
@@ -51,20 +52,22 @@ public class Payment extends AuditingFields {
     private boolean isDeleted = false;
 
     @Column(name = "refund_method", nullable = false)
-    private String refundMethod;
+    private String refundMethod = "";
 
     @Column(name = "refund_amount", nullable = false)
-    private int refundAmount;
+    private int refundAmount = 0;
 
     @Builder.Default
-    @Column(name = "refund_date", nullable = true)
-    private LocalDateTime refundDate = LocalDateTime.now();
+    @Column(name = "refund_date")
+    private LocalDateTime refundDate = null;
 
     // PaymentCreateRequestDto에서 결제 수단만 받음
-    public Payment(PaymentCreateRequestDto requestDto) {
+    public Payment(PaymentCreateRequestDto requestDto, int totalPrice) {
         this.paymentMethod = requestDto.getPaymentMethod();
-        this.status = getStatus();
-        //this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
+        this.paymentAmount = totalPrice;
+        this.status = PaymentStatus.PENDING;
+        this.paymentDate = LocalDateTime.now();
+        this.paymentKey = UUID.randomUUID().toString();
     }
 
     @PrePersist

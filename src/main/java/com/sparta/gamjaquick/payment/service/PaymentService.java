@@ -21,8 +21,8 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
 
     // 결제 생성
-    public PaymentResponseDto createPayment(PaymentCreateRequestDto paymentRequestDto) {
-        Payment payment = paymentRepository.save(new Payment(paymentRequestDto));
+    public PaymentResponseDto createPayment(PaymentCreateRequestDto paymentRequestDto, int totalPrice) {
+        Payment payment = paymentRepository.save(new Payment(paymentRequestDto, totalPrice));
         return PaymentResponseDto.from(payment);
     }
 

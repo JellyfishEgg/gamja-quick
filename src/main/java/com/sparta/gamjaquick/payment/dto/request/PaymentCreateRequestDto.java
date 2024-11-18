@@ -10,12 +10,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PaymentCreateRequestDto {
 
-    //private UUID orderId;
-    //private int paymentAmount;
     private String paymentMethod;
-    //private PaymentStatus status;
-    //private String paymentKey;
-
+    private int paymentAmount;
+    private UUID orderId;
 }
 
 
