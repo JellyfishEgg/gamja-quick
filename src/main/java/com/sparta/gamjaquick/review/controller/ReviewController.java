@@ -1,5 +1,7 @@
 package com.sparta.gamjaquick.review.controller;
 
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExamples;
 import com.sparta.gamjaquick.review.dto.request.ReviewRequestDto;
 import com.sparta.gamjaquick.review.dto.response.ReviewResponseDto;
 import com.sparta.gamjaquick.review.service.ReviewService;
@@ -20,6 +22,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @ApiErrorCodeExamples({ErrorCode.STORE_NOT_FOUND, ErrorCode.RESOURCE_NOT_FOUND, ErrorCode.USER_NOT_FOUND})
     @PostMapping("/stores/{storeId}/orders/{orderId}")
     @Parameters(
             {@Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")  ,
@@ -35,6 +38,7 @@ public class ReviewController {
         return reviewService.createReview(storeId, orderId, userId, reviewRequestDto);
     }
 
+    @ApiErrorCodeExamples({ErrorCode.REVIEW_NOT_FOUND})
     @PutMapping("/{reviewId}")
     @Operation(summary = "리뷰 수정", description = "리뷰를 수정 할 때 사용하는 API")
     @Parameter(name = "reviewId", description = "리뷰 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
@@ -44,6 +48,7 @@ public class ReviewController {
         return reviewService.updateReview(reviewId, reviewRequestDto);
     }
 
+    @ApiErrorCodeExamples({ErrorCode.REVIEW_NOT_FOUND})
     @DeleteMapping("/{reviewId}")
     @Parameters(
             {@Parameter(name = "reviewId", description = "리뷰 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000"),
@@ -56,6 +61,7 @@ public class ReviewController {
         reviewService.deleteReview(reviewId, deletedBy);
     }
 
+    @ApiErrorCodeExamples({ErrorCode.REVIEW_NOT_FOUND})
     @GetMapping("/{reviewId}")
     @Operation(summary = "리뷰 단건 조회", description = "하나의 리뷰를 조회 할 때 사용하는 API")
     @Parameter(name = "reviewId", description = "리뷰 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
