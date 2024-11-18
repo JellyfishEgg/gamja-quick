@@ -34,7 +34,7 @@ public class StoreController {
     @PostMapping("")
     @ApiErrorCodeExamples({ErrorCode.STORE_APPROVAL_PENDING, ErrorCode.STORE_ALREADY_EXISTS})
     @Operation(summary = "가게 등록 신청", description = "가게 등록 신청을 할 때 사용하는 API")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
     public ApiResponseDto<?> registerStore(@RequestBody @Valid StoreCreateRequestDto requestDto) {
         StoreCreateResponseDto result = storeService.registerStore(requestDto);
         return ApiResponseDto.success(MessageType.CREATE, result);
@@ -45,7 +45,7 @@ public class StoreController {
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.STORE_ALREADY_APPROVED, ErrorCode.STORE_NOT_FOUND      })
     @Operation(summary = "가게 등록 승인", description = "가게 등록 승인을 할 때 사용하는 API")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MASTER')")
     public ApiResponseDto<?> approveStore(@PathVariable("storeId") String storeId,
                                           @RequestBody @Valid StoreApprovalRequestDto requestDto) {
         StoreResponseDto result = storeService.approveStore(storeId, requestDto);
@@ -75,7 +75,7 @@ public class StoreController {
     @ApiErrorCodeExample(ErrorCode.STORE_NOT_FOUND)
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @Operation(summary = "가게 수정", description = "가게를 수정 할 때 사용하는 API")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
     public ApiResponseDto<?> updateStore(@PathVariable("storeId") String storeId,
                                          @RequestBody @Valid StoreUpdateRequestDto requestDto) {
         StoreResponseDto result = storeService.update(storeId, requestDto);
@@ -87,7 +87,7 @@ public class StoreController {
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.STORE_NOT_FOUND, ErrorCode.STORE_ALREADY_DELETED})
     @Operation(summary = "가게 삭제", description = "가게를 삭제 할 때 사용하는 API")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
     public ApiResponseDto<?> deleteStore(@PathVariable("storeId") String storeId) {
         StoreResponseDto result = storeService.delete(storeId);
         return ApiResponseDto.success(MessageType.DELETE, result);

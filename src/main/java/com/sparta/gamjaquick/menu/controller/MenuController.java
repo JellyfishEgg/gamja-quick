@@ -2,6 +2,7 @@ package com.sparta.gamjaquick.menu.controller;
 
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
+import com.sparta.gamjaquick.config.security.UserDetailsImpl;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExample;
 import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExamples;
@@ -11,6 +12,7 @@ import com.sparta.gamjaquick.menu.dto.response.ContentResponseDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuDeleteReponseDto;
 import com.sparta.gamjaquick.menu.dto.response.MenuResponseDto;
 import com.sparta.gamjaquick.menu.service.MenuService;
+import com.sparta.gamjaquick.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -20,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,19 +38,20 @@ public class MenuController {
     private final MenuService menuService;
 
     //메뉴 등록
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER')")
     @PostMapping("/menus")
     @ApiErrorCodeExamples({ErrorCode.MENU_NOT_FOUND, ErrorCode.FORBIDDEN})
     @Operation(summary = "메뉴 등록", description = "메뉴를 등록 할 때 사용하는 API")
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     public ApiResponseDto<MenuResponseDto> createMenu(@PathVariable(name = "storeId") UUID storeId,
                                                       @RequestBody @Valid MenuRequestDto menuRequestDto,
-                                                      @AuthenticationPrincipal User user) {
-        MenuResponseDto result = menuService.createMenu(storeId, menuRequestDto, user);
+                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        MenuResponseDto result = menuService.createMenu(storeId, menuRequestDto, userDetails.getUser());
         return ApiResponseDto.success(MessageType.CREATE, result);
     }
 
     //메뉴 수정
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER')")
     @Operation(summary = "메뉴 수정", description = "메뉴를 수정 할 때 사용하는 API")
     @PutMapping("/menus/{menuId}")
     @Parameters({
@@ -61,9 +63,8 @@ public class MenuController {
                             @PathVariable(name = "storeId") UUID storeId,
                            @PathVariable(name = "menuId") UUID menuId,
                            @RequestBody @Valid MenuRequestDto menuRequestDto,
-                           @AuthenticationPrincipal User user) {
-        MenuResponseDto result = menuService.updateMenu(storeId,menuId, menuRequestDto, user);
-
+                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        MenuResponseDto result = menuService.updateMenu(storeId,menuId, menuRequestDto, userDetails.getUser());
         return ApiResponseDto.success(MessageType.UPDATE, result);
     }
 
@@ -103,7 +104,7 @@ public class MenuController {
     }
 
     //메뉴 단건 삭제
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER')")
     @Operation(summary = "메뉴 단건 삭제", description = "하나의 메뉴를 삭제 할 때 사용하는 API")
     @DeleteMapping("/menus/{menuId}")
     @Parameters(
@@ -113,31 +114,31 @@ public class MenuController {
     @ApiErrorCodeExamples({ErrorCode.MENU_NOT_FOUND, ErrorCode.FORBIDDEN})
     public ApiResponseDto<MenuDeleteReponseDto> deleteMenu(@PathVariable(name = "storeId") UUID storeId,
                                                            @PathVariable(name = "menuId") UUID menuId,
-                                                           @AuthenticationPrincipal User user) {
-        return ApiResponseDto.success(MessageType.DELETE, menuService.deleteMenu(storeId,menuId,user));
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ApiResponseDto.success(MessageType.DELETE, menuService.deleteMenu(storeId,menuId,userDetails.getUser()));
     }
 
     //메뉴 전체 삭제
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER')")
     @Operation(summary = "메뉴 전체 삭제", description = "가게별 메뉴를 전체 삭제 할 때 사용하는 API")
     @DeleteMapping("/menus")
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.MENU_NOT_FOUND, ErrorCode.FORBIDDEN})
     public ApiResponseDto<List<MenuDeleteReponseDto>> deleteMenusByStore(@PathVariable(name = "storeId") UUID storeId,
-                                                                         @AuthenticationPrincipal User user) {
-        return ApiResponseDto.success(MessageType.DELETE, menuService.deleteMenusByStore(storeId, user));
+                                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ApiResponseDto.success(MessageType.DELETE, menuService.deleteMenusByStore(storeId, userDetails.getUser()));
     }
 
     // 메뉴 설명 자동 생성
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER')")
     @Operation(summary = "메뉴 설명 자동 생성", description = "메뉴의 설명을 자동 생성 할 때 사용하는 API")
     @PostMapping("/menus/generate-description")
     @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000")
     @ApiErrorCodeExamples({ErrorCode.STORE_NOT_FOUND, ErrorCode.FORBIDDEN})
     public ApiResponseDto<?> generateMenuDescription(@PathVariable(name = "storeId") UUID storeId,
                                                      @RequestBody @Valid ContentRequestDto requestDto,
-                                                     @AuthenticationPrincipal User user) {
-        ContentResponseDto result = menuService.generateMenuDescription(storeId, requestDto, user);
+                                                     @AuthenticationPrincipal UserDetailsImpl user) {
+        ContentResponseDto result = menuService.generateMenuDescription(storeId, requestDto, user.getUser());
         return ApiResponseDto.success(MessageType.CREATE, result);
     }
 

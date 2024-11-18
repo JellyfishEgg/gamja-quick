@@ -14,12 +14,12 @@ import com.sparta.gamjaquick.menu.entity.Menu;
 import com.sparta.gamjaquick.menu.repository.MenuRepository;
 import com.sparta.gamjaquick.store.entity.Store;
 import com.sparta.gamjaquick.store.service.StoreService;
+import com.sparta.gamjaquick.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,10 +135,15 @@ public class MenuService {
     public void checkUser(UUID storeId,User user) {
         //user에서 받은 권한이 들어갈 예정 ex) user.getRole().equals("OWNER")
 
-//        Store store = storeService.findById(String.valueOf(storeId));
-//        if(store.getUser().getId() != user.getId()){
-//            throw new BusinessException(ErrorCode.FORBIDDEN);
-//        }
+        if(!user.getRole().equals("MASTER")){
+            Store store = storeService.findById(String.valueOf(storeId));
+            //System.out.println(store.getUser().getId() + "      " + user.getId());
+            if(store.getUser().getId() != user.getId()){
+                throw new BusinessException(ErrorCode.FORBIDDEN);
+            }
+        }
+
+
 
     }
 }
