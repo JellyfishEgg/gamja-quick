@@ -15,12 +15,11 @@ import com.sparta.gamjaquick.store.dto.response.StoreResponseDto;
 import com.sparta.gamjaquick.store.dto.response.StoreWithMenusResponseDto;
 import com.sparta.gamjaquick.store.entity.Store;
 import com.sparta.gamjaquick.store.repository.StoreRepository;
+import com.sparta.gamjaquick.user.entity.RoleType;
 import com.sparta.gamjaquick.user.entity.User;
-import com.sparta.gamjaquick.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,17 +35,16 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
     private final CategoryService categoryService;
-    private final UserRepository userRepository;
-    private final AuditorAware<String> auditorAware;
 
-    // 가게 등록 신청 (가게 주인)
-    public StoreCreateResponseDto registerStore(StoreCreateRequestDto requestDto) {
+    // 가게 등록 신청 (가게 주인) / 관리자의 경우 바로 등록
+    public StoreCreateResponseDto registerStore(StoreCreateRequestDto requestDto, User user) {
         validateStoreNotExists(requestDto);
-
         Category findCategory = categoryService.findById(requestDto.getCategoryId());
-        // TODO: 시큐리시 적용 후 user 객체 주입
-        User user = userRepository.findById(1L).get();
-        Store createdStore = storeRepository.save(Store.from(user, findCategory, requestDto));
+
+        // 가게 생성
+        Store createdStore = user.getRole().equals(RoleType.OWNER)
+                ? storeRepository.save(Store.from(user, findCategory, requestDto))
+                : storeRepository.save(Store.fromAdmin(user, findCategory, requestDto));
 
         return StoreCreateResponseDto.from(createdStore);
     }
@@ -92,25 +90,34 @@ public class StoreService {
     }
 
     // 가게 수정
-    public StoreResponseDto update(String storeId, @Valid StoreUpdateRequestDto requestDto) {
+    public StoreResponseDto update(String storeId, @Valid StoreUpdateRequestDto requestDto, User user) {
         Store findStore = findById(storeId);
         Category findCategory = categoryService.findById(requestDto.getCategoryId());
 
+        // 가게 주인인 경우 자신의 가게만 수정 가능
+        if (user.getRole().equals(RoleType.OWNER) && !findStore.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.STORE_UPDATE_UNAUTHORIZED);
+        }
         findStore.update(requestDto, findCategory);
 
         return StoreResponseDto.from(findStore);
     }
 
     // 가게 삭제
-    public StoreResponseDto delete(String storeId) {
+    public StoreResponseDto delete(String storeId, User user) {
         Store findStore = findById(storeId);
+
+        // 가게 주인인 경우 자신의 가게만 삭제 가능
+        if (user.getRole().equals(RoleType.OWNER) && !findStore.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.STORE_UPDATE_UNAUTHORIZED);
+        }
 
         // 이미 삭제된 가게일 경우 예외 처리
         if (findStore.getIsDeleted()) {
             throw new BusinessException(ErrorCode.STORE_ALREADY_DELETED);
         }
 
-        findStore.delete(auditorAware.getCurrentAuditor().orElse("")); // TODO: 로그인한 유저로 변경
+        findStore.delete(user.getUsername()); // TODO: 로그인한 유저로 변경
         return StoreResponseDto.from(findStore);
     }
 
