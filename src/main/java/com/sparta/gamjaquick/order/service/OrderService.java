@@ -79,11 +79,11 @@ public class OrderService {
                 orderItems
         );
 
-        // 주문 항목 저장 (배달 정보 및 주문 아이템)
-        orderItemRepository.saveAll(orderItems);
-
         // 먼저 주문을 저장
         order = orderRepository.save(order);  // 여기서 order를 먼저 저장
+
+        // 주문 항목 저장 (배달 정보 및 주문 아이템)
+        orderItemRepository.saveAll(orderItems);
 
         // 결제 정보 저장
         payment.setOrder(order);  // 주문과 결제 정보 연결
