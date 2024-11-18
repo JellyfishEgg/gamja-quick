@@ -138,7 +138,8 @@ public class UserController {
      * @param loginRequest 로그인 요청 데이터 (username, password)
      * @return ApiResponseDto 형식으로 로그인 응답 데이터 반환
      */
-    @ApiErrorCodeExamples({ErrorCode.USER_LOGIN_FAILED})
+  @Operation(summary = "회원 로그인", description = "사용자가 로그인을 할 때 사용하는 API")
+  @ApiErrorCodeExamples({ErrorCode.USER_LOGIN_FAILED})
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDto> login(@RequestBody UserLoginRequestDto loginRequest) {
         UserLoginResponseDto response = userService.login(loginRequest);

@@ -31,15 +31,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public ReviewResponseDto createReview(String storeId, String orderId, Long userId, ReviewRequestDto reviewRequestDto) {
+    public ReviewResponseDto createReview(String storeId, String orderId, User user, ReviewRequestDto reviewRequestDto) {
         Store store = storeService.findById(storeId);
 
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
+        checkReview(order.getUser(), user );
         Review review = new Review(
                 store,
                 order,
@@ -67,12 +64,15 @@ public class ReviewServiceImpl implements ReviewService {
         );
     }
 
+
+
     @Transactional
     @Override
-    public ReviewResponseDto updateReview(String reviewId, ReviewRequestDto reviewRequestDto) {
+    public ReviewResponseDto updateReview(String reviewId, ReviewRequestDto reviewRequestDto, User user) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
+        checkReview(review.getUser(), user);
         review.updateReview(reviewRequestDto.getRating(), reviewRequestDto.getContent(), reviewRequestDto.getIsHidden());
         reviewRepository.save(review);
 
@@ -95,11 +95,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void deleteReview(String reviewId, String deletedBy) {
+    public void deleteReview(String reviewId, User user) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(UUID.fromString(reviewId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        review.deleteReview(deletedBy);
+        checkReview(review.getUser(), user);
+        review.deleteReview(user.getUsername());
 
         // 해당 가게의 평점 업데이트
         updateStoreRating(review);
@@ -158,6 +159,13 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 변경된 값 저장
         store.updateRating(averageRating);
+    }
+
+    private void checkReview(User user1, User user2) {
+        if(user1.getId() != user2.getId()){
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+
     }
 
 }
