@@ -45,7 +45,7 @@ public class OrderController {
     @ApiErrorCodeExample(ErrorCode.RESOURCE_NOT_FOUND)
     @Operation(summary = "주문 단건 조회", description = "하나의 주문을 조회 할 때 사용하는 API")
     @Parameter(name = "orderId", description = "주문 ID", example = "7f000001-9328-1505-8193-28353dc60000")
-    public ApiResponseDto<OrderResponseDto> getOrder(@PathVariable UUID orderId) {
+    public ApiResponseDto<OrderResponseDto> getOrder(@PathVariable("orderId") UUID orderId) {
         OrderResponseDto result = orderService.getOrder(orderId);
         return ApiResponseDto.success(MessageType.RETRIEVE, result);
     }
@@ -74,7 +74,7 @@ public class OrderController {
     @Parameter(name = "orderId", description = "주문 ID", example = "7f000001-9328-1505-8193-28353dc60000")
     @Operation(summary = "주문 상태 업데이트", description = "주문을 취소하거나 상태를 업데이트 할 때 사용하는 API")
     public ApiResponseDto<OrderResponseDto> updateOrderStatus(
-            @PathVariable UUID orderId,
+            @PathVariable("orderId") UUID orderId,
             @RequestBody @Valid OrderStatusUpdateRequestDto requestDto) {
 
         OrderResponseDto result = orderService.updateOrderStatus(orderId, requestDto);

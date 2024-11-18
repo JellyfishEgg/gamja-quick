@@ -136,28 +136,50 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        // 주문 성공
+        // 결제 객체 생성 또는 기존 결제 정보 가져오기
+        Payment payment = order.getPayment();
+        if (payment == null) {
+            // Payment 객체가 없으면 새로 생성
+            payment = new Payment();
+            payment.setOrder(order);  // 주문과 연결
+            payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
+            payment.setStatus(PaymentStatus.PENDING);
+        }
+
+        // 주문 성공 처리
         if (requestDto.getStatus() == OrderStatus.COMPLETED) {
-            Payment payment = order.getPayment(); // 결제 성공으로 업데이트
-            payment.updateStatus(PaymentStatus.SUCCESS);
-            payment.setAdditionalPaymentInfo(payment.getId(), "payment_key_generated", LocalDateTime.now());
+            payment.setStatus(PaymentStatus.SUCCESS);
+            payment.setPaymentKey(UUID.randomUUID().toString()); // 고유 키 생성
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setPaymentAmount(order.getTotalPrice()); // 결제 금액 설정
+
+            // 결제 정보 저장
             paymentRepository.save(payment);
 
-            order.updateStatus(requestDto.getStatus());
+            order.setPayment(payment); // Order와 Payment 연결
+            order.updateStatus(OrderStatus.COMPLETED);
 
-        // 주문 취소
         } else if (requestDto.getStatus() == OrderStatus.CANCELLED) {
-            Payment payment = order.getPayment();
-            payment.updateStatus(PaymentStatus.CANCELLED);
-            payment.setRefund(payment.getId(), payment.getPaymentMethod(), payment.getPaymentAmount(), LocalDateTime.now());
+            // 주문 취소 처리
+            payment.setStatus(PaymentStatus.CANCELLED);
+            payment.setRefundMethod("카드");
+            payment.setRefundAmount(order.getTotalPrice());
+            payment.setRefundDate(LocalDateTime.now());
+
+            // 결제 정보 저장
             paymentRepository.save(payment);
 
+            order.setPayment(payment); // Order와 Payment 연결
             order.updateStatus(OrderStatus.CANCELLED);
-
+            order.setCancelReason(requestDto.getCancelReason());
         } else {
+            // 그 외 상태 업데이트
             order.updateStatus(requestDto.getStatus());
         }
-        return OrderResponseDto.from(order);
+
+        orderRepository.save(order); // 변경된 주문 저장
+
+        return OrderResponseDto.from(order); // 응답 DTO 생성 및 반환
     }
 
     //소프트 삭제

@@ -34,6 +34,7 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_method", length = 100, nullable = false)
     private String paymentMethod;
 
+    @Setter
     @Builder.Default
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate = LocalDateTime.now();
@@ -44,6 +45,7 @@ public class Payment extends AuditingFields {
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.PENDING; // 기본값 설정;
 
+    @Setter
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
@@ -51,12 +53,15 @@ public class Payment extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Setter
     @Column(name = "refund_method", nullable = false)
     private String refundMethod = "";
 
+    @Setter
     @Column(name = "refund_amount", nullable = false)
     private int refundAmount = 0;
 
+    @Setter
     @Builder.Default
     @Column(name = "refund_date")
     private LocalDateTime refundDate = null;
