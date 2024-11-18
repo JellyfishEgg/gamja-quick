@@ -17,6 +17,7 @@ import com.sparta.gamjaquick.order.repository.OrderRepository;
 import com.sparta.gamjaquick.orderItem.entity.OrderItem;
 import com.sparta.gamjaquick.orderItem.repository.OrderItemRepository;
 import com.sparta.gamjaquick.payment.entity.Payment;
+import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import com.sparta.gamjaquick.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,30 +43,31 @@ public class OrderService {
     private final MenuRepository menuRepository;
 
     public OrderResponseDto createOrder(OrderCreateRequestDto requestDto) {
-        // 배송지정보저장
+        // 배송지 정보 저장
         DeliveryInfo deliveryInfo = new DeliveryInfo(
                 requestDto.getDeliveryInfo().getAddress(),
                 requestDto.getDeliveryInfo().getRequest()
         );
         deliveryInfoRepository.save(deliveryInfo);
 
-        // 결제정보저장
-        Payment payment = new Payment(requestDto.getPayment());
-        paymentRepository.save(payment);
-
-        // 총금액계산, 주문메뉴저장
+        // 총금액 계산, 주문 메뉴 저장
         List<OrderItem> orderItems = new ArrayList<>();
         int totalPrice = 0;
         for (OrderCreateRequestDto.OrderItemRequestDto itemDto : requestDto.getOrderItems()) {
             Menu menu = menuRepository.findById(itemDto.getMenuId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.MENU_NOT_FOUND));
-            totalPrice += itemDto.getPrice() * itemDto.getQuantity();
+            totalPrice += itemDto.getPrice() * itemDto.getQuantity(); // 총 금액 계산
 
             OrderItem orderItem = new OrderItem(menu, itemDto.getQuantity(), itemDto.getPrice());
             orderItems.add(orderItem);
         }
 
-        // 완성된주문서저장
+        // 결제 정보 상태를 미리 PENDING으로 설정한 Payment 객체 생성
+        Payment payment = new Payment(requestDto.getPayment());
+        payment.setPaymentAmount(totalPrice);
+        payment.setStatus(PaymentStatus.PENDING);  // 결제 상태를 PENDING으로 설정
+
+        // 완성된 주문서 생성
         Order order = new Order(
                 requestDto.getUserId(),
                 requestDto.getStoreId(),
@@ -72,17 +75,21 @@ public class OrderService {
                 totalPrice,  // 계산된 총 금액
                 requestDto.getType(),
                 deliveryInfo,
-                payment,
+                payment,  // 결제 정보를 미리 설정
                 orderItems
         );
 
-        // 5. 주문 항목 저장 (배달 정보 및 결제 정보와 함께)
+        // 먼저 주문을 저장
+        order = orderRepository.save(order);  // 여기서 order를 먼저 저장
+
+        // 주문 항목 저장 (배달 정보 및 주문 아이템)
         orderItemRepository.saveAll(orderItems);
 
-        // 6. 주문 저장
-        order = orderRepository.save(order);
+        // 결제 정보 저장
+        payment.setOrder(order);  // 주문과 결제 정보 연결
+        paymentRepository.save(payment);  // Payment 저장
 
-        // 7. 주문 응답 DTO 반환
+        // 주문 응답 반환
         return OrderResponseDto.from(order);
     }
 
@@ -107,15 +114,31 @@ public class OrderService {
     }
 
     public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDto requestDto) {
+        // 주문 존재 확인
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (requestDto.getStatus() == OrderStatus.CANCELLED) {
-            order.cancelOrder(requestDto.getCancelReason());
+        // 주문 성공
+        if (requestDto.getStatus() == OrderStatus.COMPLETED) {
+            Payment payment = order.getPayment(); // 결제 성공으로 업데이트
+            payment.updateStatus(PaymentStatus.SUCCESS);
+            payment.setAdditionalPaymentInfo(payment.getId(), "payment_key_generated", LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            order.updateStatus(requestDto.getStatus());
+
+        // 주문 취소
+        } else if (requestDto.getStatus() == OrderStatus.CANCELLED) {
+            Payment payment = order.getPayment();
+            payment.updateStatus(PaymentStatus.CANCELLED);
+            payment.setRefund(payment.getId(), payment.getPaymentMethod(), payment.getPaymentAmount(), LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            order.updateStatus(OrderStatus.CANCELLED);
+
         } else {
             order.updateStatus(requestDto.getStatus());
         }
-
         return OrderResponseDto.from(order);
     }
 
