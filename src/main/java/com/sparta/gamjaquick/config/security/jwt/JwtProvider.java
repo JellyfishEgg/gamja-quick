@@ -36,11 +36,13 @@
          * @return 생성된 JWT 토큰
          */
         public String createToken(String username, String roles) {
+            System.out.println(username);
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
 
             Map<String, Object> claims = new HashMap<>();
             claims.put("roles", roles);
+            claims.put("sub", username);
 
             return Jwts.builder()
                     .setSubject(username)
@@ -59,6 +61,7 @@
          */
         public Authentication getAuthentication(String token) {
             String username = getUsernameFromToken(token);
+            //System.out.println(username);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
         }
@@ -70,6 +73,7 @@
          * @return 사용자 이름
          */
         public String getUsernameFromToken(String token) {
+            //System.out.println(token);
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()

@@ -39,6 +39,7 @@
 
             // 토큰 검증 & 인증 객체 설정 부분
             if (token != null && jwtProvider.validateToken(token)) {
+                System.out.println(token);
                 var authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

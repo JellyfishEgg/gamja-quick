@@ -33,9 +33,11 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_method", length = 100, nullable = false)
     private String paymentMethod;
 
+    @Builder.Default
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate = LocalDateTime.now();
 
+    @Builder.Default
     @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -44,6 +46,7 @@ public class Payment extends AuditingFields {
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -53,6 +56,7 @@ public class Payment extends AuditingFields {
     @Column(name = "refund_amount", nullable = false)
     private int refundAmount;
 
+    @Builder.Default
     @Column(name = "refund_date", nullable = true)
     private LocalDateTime refundDate = LocalDateTime.now();
 

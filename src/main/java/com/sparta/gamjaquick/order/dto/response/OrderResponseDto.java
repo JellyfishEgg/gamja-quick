@@ -21,6 +21,7 @@ public class OrderResponseDto {
     private String orderNumber;              // 주문 번호
     private Long userId;                     // 사용자 ID
     private UUID storeId;                    //가게 ID
+    @Builder.Default
     private LocalDateTime orderDate = LocalDateTime.now(); // 주문 일시
     private OrderStatus orderStatus;         // 주문 상태
     private OrderType orderType;             // 주문 타입

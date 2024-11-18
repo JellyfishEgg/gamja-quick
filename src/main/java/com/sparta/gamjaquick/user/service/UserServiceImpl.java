@@ -28,9 +28,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType role;
-
     /**
      * 회원가입
      * @param signUpDto 회원가입 요청 데이터
@@ -48,6 +45,7 @@ public class UserServiceImpl implements UserService {
                 .role(RoleType.CUSTOMER)
                 .isPublic(true)
                 .isDeleted(false)
+                .createdBy(signUpDto.getUsername())
                 .build();
 
         userRepository.save(user);

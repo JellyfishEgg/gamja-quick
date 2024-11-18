@@ -52,7 +52,6 @@ public class UserController {
     @Operation(summary = "특정 사용자 조회", description = "특정 사용자를 조회 할 때 사용하는 API")
     @Parameter(name = "userId", description = "유저 ID", example = "1")
     @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER') or hasRole('OWNER')")
     public ApiResponseDto<UserResponseDto> getUserById(@PathVariable("userId") Long id) {
         return ApiResponseDto.success(MessageType.RETRIEVE, userService.getUserById(id));
     }
@@ -64,7 +63,7 @@ public class UserController {
      */
     @Operation(summary = "전체 사용자 조회 (관리자용)", description = "관리자가 전체 사용자를 조회 할 때 사용하는 API")
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MASTER')")
     public ApiResponseDto<List<UserResponseDto>> getAllUsers() {
         return ApiResponseDto.success(MessageType.RETRIEVE, userService.getAllUsers());
     }
@@ -77,7 +76,7 @@ public class UserController {
      */
     @Operation(summary = "사용자 정보 수정", description = "사용자가 정보를 수정 할 때 사용하는 API")
     @PutMapping
-    @PreAuthorize("hasRole('CUSTOMER') or hasRole('OWNER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER','OWNER')")
     public ApiResponseDto<UserResponseDto> updateUser(
             @AuthenticationPrincipal String username,
             @RequestBody UserUpdateRequestDto updateDto) {
@@ -92,7 +91,6 @@ public class UserController {
      */
     @Operation(summary = "회원 탈퇴", description = "사용자가 회원 탈퇴를 할 때 사용하는 API")
     @DeleteMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
     public ApiResponseDto<UserDeleteResponseDto> deleteUser(@AuthenticationPrincipal String username) {
         return ApiResponseDto.success(MessageType.DELETE, userService.deleteUser(username));
     }
@@ -111,7 +109,7 @@ public class UserController {
             @Parameter(name = "size", description = "한 페이지에 보일 사용자 수", example = "10")
     })
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MASTER')")
     public ResponseEntity<ApiResponseDto> searchUsers(@ModelAttribute UserSearchParameter searchParam,
                                                       @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size) {
