@@ -17,17 +17,17 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderCreateRequestDto {
 
-    private User user;
-    private Store store;
+    private Long userId;
+    private UUID storeId;
     private String orderNumber;
     private List<OrderItemRequestDto> orderItems;
     private OrderType type;
     private PaymentCreateRequestDto payment;
     private DeliveryInfoRequestDto deliveryInfo;
 
-    public OrderCreateRequestDto(User user, Store store, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
-        this.user = user;
-        this.store = store;
+    public OrderCreateRequestDto(Long userId, UUID storeId, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
+        this.userId = userId;
+        this.storeId = storeId;
         this.orderNumber = orderNumber;
         this.orderItems = orderItems;
         this.type = type;

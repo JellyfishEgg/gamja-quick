@@ -19,6 +19,10 @@ import com.sparta.gamjaquick.orderItem.repository.OrderItemRepository;
 import com.sparta.gamjaquick.payment.entity.Payment;
 import com.sparta.gamjaquick.payment.entity.PaymentStatus;
 import com.sparta.gamjaquick.payment.repository.PaymentRepository;
+import com.sparta.gamjaquick.store.entity.Store;
+import com.sparta.gamjaquick.store.service.StoreService;
+import com.sparta.gamjaquick.user.entity.User;
+import com.sparta.gamjaquick.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +45,8 @@ public class OrderService {
     private final PaymentRepository paymentRepository;
     private final OrderItemRepository orderItemRepository;
     private final MenuRepository menuRepository;
+    private final StoreService storeService;
+    private final UserRepository userRepository;
 
     public OrderResponseDto createOrder(OrderCreateRequestDto requestDto) {
         // 배송지 정보 저장
@@ -49,6 +55,10 @@ public class OrderService {
                 requestDto.getDeliveryInfo().getRequest()
         );
         deliveryInfoRepository.save(deliveryInfo);
+
+        // 유저 정보 및 가게 정보 조회
+        User findUser = userRepository.findById(requestDto.getUserId()).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Store findStore = storeService.findById(requestDto.getStoreId().toString());
 
         // 총금액 계산, 주문 메뉴 저장
         List<OrderItem> orderItems = new ArrayList<>();
@@ -62,20 +72,15 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
-        // 결제 정보 상태를 미리 PENDING으로 설정한 Payment 객체 생성
-        Payment payment = new Payment(requestDto.getPayment());
-        payment.setPaymentAmount(totalPrice);
-        payment.setStatus(PaymentStatus.PENDING);  // 결제 상태를 PENDING으로 설정
-
         // 완성된 주문서 생성
         Order order = new Order(
-                requestDto.getUserId(),
-                requestDto.getStoreId(),
+                findUser,
+                findStore,
                 requestDto.getOrderNumber(),
                 totalPrice,  // 계산된 총 금액
                 requestDto.getType(),
                 deliveryInfo,
-                payment,  // 결제 정보를 미리 설정
+//                payment,  // 결제 정보를 미리 설정
                 orderItems
         );
 
@@ -85,8 +90,14 @@ public class OrderService {
         // 주문 항목 저장 (배달 정보 및 주문 아이템)
         orderItemRepository.saveAll(orderItems);
 
+        // 결제 정보 상태를 미리 PENDING으로 설정한 Payment 객체 생성
+        Payment payment = new Payment(requestDto.getPayment());
+        payment.setOrder(order);
+        payment.setPaymentAmount(totalPrice);
+        payment.setStatus(PaymentStatus.PENDING);  // 결제 상태를 PENDING으로 설정
+
         // 결제 정보 저장
-        payment.setOrder(order);  // 주문과 결제 정보 연결
+//        payment.setOrder(order);  // 주문과 결제 정보 연결
         paymentRepository.save(payment);  // Payment 저장
 
         // 주문 응답 반환
