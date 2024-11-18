@@ -156,4 +156,12 @@ public class Store extends AuditingFields {
     public Store(UUID id){
         this.id = id;
     }
+
+    /**
+     * 가게의 평점을 업데이트
+     * @param averageRating 평균 평점
+     */
+    public void updateRating(double averageRating) {
+        this.rating = averageRating;
+    }
 }
