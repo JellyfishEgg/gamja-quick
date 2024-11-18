@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@Profile("local") // TODO: 상용 수정
+@Profile({"prod", "local"})
 @RequiredArgsConstructor
 public class S3FileUploader implements FileUploader {
 
