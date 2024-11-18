@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.order.service;
 
 
+import com.sparta.gamjaquick.common.request.SearchParameter;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.error.exception.BusinessException;
@@ -111,6 +112,19 @@ public class OrderService {
         return OrderResponseDto.from(order);
     }
 
+//    @Transactional(readOnly = true)
+//    public OrderResponseDto getOrder(UUID orderId) {
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
+//        return OrderResponseDto.from(order);
+//    }
+
+    public Order findById(String orderId) {
+        return orderRepository.findById(UUID.fromString(orderId)).orElseThrow(
+                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
+        );
+    }
+
     @Transactional(readOnly = true)
     public OrderResponseDto getOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
@@ -118,18 +132,25 @@ public class OrderService {
         return OrderResponseDto.from(order);
     }
 
+
     @Transactional(readOnly = true)
-    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, Pageable pageable) {
-        Page<Order> orders;
-        if (userId != null) {
-            orders = orderRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
-        } else if (storeId != null) {
-            orders = orderRepository.findAllByStoreIdAndIsDeletedFalse(storeId, pageable);
-        } else {
-            throw new BusinessException(ErrorCode.INVALID_INPUT);
-        }
+    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, SearchParameter searchParameter) {
+        Page<Order> orders = orderRepository.searchOrders(searchParameter, userId, storeId);
         return PageResponseDto.of(orders.map(OrderResponseDto::from));
     }
+
+//    @Transactional(readOnly = true)
+//    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, Pageable pageable) {
+//        Page<Order> orders;
+//        if (userId != null) {
+//            orders = orderRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
+//        } else if (storeId != null) {
+//            orders = orderRepository.findAllByStoreIdAndIsDeletedFalse(storeId, pageable);
+//        } else {
+//            throw new BusinessException(ErrorCode.INVALID_INPUT);
+//        }
+//        return PageResponseDto.of(orders.map(OrderResponseDto::from));
+//    }
 
     public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDto requestDto) {
         // 주문 존재 확인

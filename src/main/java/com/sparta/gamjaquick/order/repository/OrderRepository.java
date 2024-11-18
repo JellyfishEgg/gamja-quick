@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface OrderRepository extends JpaRepository<Order, UUID> {
+public interface OrderRepository extends JpaRepository<Order, UUID>, OrderRepositoryCustom {
 
     Page<Order> findAllByUserIdAndIsDeletedFalse(Long userId, Pageable pageable); //고객이 본인의 전체 주문 내역 조회
     Page<Order> findAllByStoreIdAndIsDeletedFalse(UUID storeId, Pageable pageable); //가게주인이 본인 가게에 들어온 전체 주문 내역 조회
