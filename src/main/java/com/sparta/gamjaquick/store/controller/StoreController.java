@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,11 +32,16 @@ public class StoreController {
 
     private final StoreService storeService;
 
+    @GetMapping("/auth")
+    public Authentication auth() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
     // 가게 등록 신청(가게 주인, 관리자인 경우는 바로 등록)
     @PostMapping("")
     @ApiErrorCodeExamples({ErrorCode.STORE_APPROVAL_PENDING, ErrorCode.STORE_ALREADY_EXISTS})
     @Operation(summary = "가게 등록 신청", description = "가게 등록 신청을 할 때 사용하는 API")
-    @PreAuthorize("hasAnyAuthority('MASTER','OWNER')")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'OWNER')")
     public ApiResponseDto<?> registerStore(@RequestBody @Valid StoreCreateRequestDto requestDto) {
         StoreCreateResponseDto result = storeService.registerStore(requestDto);
         return ApiResponseDto.success(MessageType.CREATE, result);

@@ -20,6 +20,8 @@ public enum ErrorCode {
 
     // 유저 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-001", "존재하지 않는 사용자입니다."),
+    USER_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "U-002", "로그인에 실패했습니다.(비밀번호와 아이디를 다시 확인해주세요.)"),
+
 
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),

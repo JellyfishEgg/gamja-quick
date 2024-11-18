@@ -1,6 +1,8 @@
 package com.sparta.gamjaquick.user.service;
 
 import com.sparta.gamjaquick.config.security.jwt.JwtProvider;
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.error.exception.BusinessException;
 import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.response.UserLoginResponseDto;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDto registerUser(UserSignUpRequestDto signUpDto) {
+
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         User user = User.builder()
                 .username(signUpDto.getUsername())
@@ -60,7 +63,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         return new UserResponseDto(user);
     }
 
@@ -84,7 +87,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto updateUser(String username, UserUpdateRequestDto updateDto) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         user.setNickname(updateDto.getNickname());
         user.setEmail(updateDto.getEmail());
@@ -103,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDeleteResponseDto deleteUser(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         user.setIsDeleted(true);
         user.setDeletedBy(username);
@@ -143,10 +146,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLoginResponseDto login(UserLoginRequestDto loginRequest) {
         User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_LOGIN_FAILED));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new BusinessException(ErrorCode.USER_LOGIN_FAILED);
         }
 
         String token = jwtProvider.createToken(user.getUsername(), user.getRole().name());
