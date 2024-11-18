@@ -129,7 +129,7 @@ public class UserController {
     public ApiResponseDto<String> logout() {
         return ApiResponseDto.success(MessageType.RETRIEVE, "로그아웃 성공");
     }
-  
+  /**
      * 사용자 로그인 API
      * 로그인 성공 시 JWT 토큰을 반환
      * @param loginRequest 로그인 요청 데이터 (username, password)
