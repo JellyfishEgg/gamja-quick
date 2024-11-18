@@ -2,6 +2,9 @@ package com.sparta.gamjaquick.user.controller;
 
 import com.sparta.gamjaquick.common.response.ApiResponseDto;
 import com.sparta.gamjaquick.common.response.MessageType;
+import com.sparta.gamjaquick.config.security.UserDetailsImpl;
+import com.sparta.gamjaquick.global.error.ErrorCode;
+import com.sparta.gamjaquick.global.swagger.ApiErrorCodeExamples;
 import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
@@ -49,11 +52,11 @@ public class UserController {
      * @param id 사용자 ID (PathVariable로 전달받음)
      * @return ApiResponseDto<UserResponseDto>
      */
+    @ApiErrorCodeExamples({ErrorCode.USER_NOT_FOUND})
     @Operation(summary = "특정 사용자 조회", description = "특정 사용자를 조회 할 때 사용하는 API")
-    @Parameter(name = "userId", description = "유저 ID", example = "1")
-    @GetMapping("/{userId}")
-    public ApiResponseDto<UserResponseDto> getUserById(@PathVariable("userId") Long id) {
-        return ApiResponseDto.success(MessageType.RETRIEVE, userService.getUserById(id));
+    @GetMapping("/my")
+    public ApiResponseDto<UserResponseDto> getUserById(@AuthenticationPrincipal UserDetailsImpl user) {
+        return ApiResponseDto.success(MessageType.RETRIEVE, userService.getUserById(user.getUser().getId()));
     }
 
     /**
@@ -74,13 +77,14 @@ public class UserController {
      * @param updateDto 수정할 사용자 정보가 담긴 DTO
      * @return ApiResponseDto<UserResponseDto>
      */
+    @ApiErrorCodeExamples({ErrorCode.USER_NOT_FOUND})
     @Operation(summary = "사용자 정보 수정", description = "사용자가 정보를 수정 할 때 사용하는 API")
     @PutMapping
     @PreAuthorize("hasAnyAuthority('CUSTOMER','OWNER')")
     public ApiResponseDto<UserResponseDto> updateUser(
-            @AuthenticationPrincipal String username,
+            @AuthenticationPrincipal UserDetailsImpl user,
             @RequestBody UserUpdateRequestDto updateDto) {
-        return ApiResponseDto.success(MessageType.UPDATE, userService.updateUser(username, updateDto));
+        return ApiResponseDto.success(MessageType.UPDATE, userService.updateUser(user.getUsername(), updateDto));
     }
 
     /**
@@ -89,10 +93,11 @@ public class UserController {
      * @param username 인증된 사용자 이름
      * @return ApiResponseDto<UserDeleteResponseDto>
      */
+    @ApiErrorCodeExamples({ErrorCode.USER_NOT_FOUND})
     @Operation(summary = "회원 탈퇴", description = "사용자가 회원 탈퇴를 할 때 사용하는 API")
     @DeleteMapping
-    public ApiResponseDto<UserDeleteResponseDto> deleteUser(@AuthenticationPrincipal String username) {
-        return ApiResponseDto.success(MessageType.DELETE, userService.deleteUser(username));
+    public ApiResponseDto<UserDeleteResponseDto> deleteUser(@AuthenticationPrincipal UserDetailsImpl user) {
+        return ApiResponseDto.success(MessageType.DELETE, userService.deleteUser(user.getUsername()));
     }
 
     /**
@@ -133,6 +138,8 @@ public class UserController {
      * @param loginRequest 로그인 요청 데이터 (username, password)
      * @return ApiResponseDto 형식으로 로그인 응답 데이터 반환
      */
+  @Operation(summary = "회원 로그인", description = "사용자가 로그인을 할 때 사용하는 API")
+  @ApiErrorCodeExamples({ErrorCode.USER_LOGIN_FAILED})
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDto> login(@RequestBody UserLoginRequestDto loginRequest) {
         UserLoginResponseDto response = userService.login(loginRequest);

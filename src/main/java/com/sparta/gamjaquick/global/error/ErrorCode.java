@@ -20,6 +20,8 @@ public enum ErrorCode {
 
     // 유저 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-001", "존재하지 않는 사용자입니다."),
+    USER_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "U-002", "로그인에 실패했습니다.(비밀번호와 아이디를 다시 확인해주세요.)"),
+
 
     // 카테고리 관련
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "CAT-001", "이미 존재하는 카테고리입니다."),
@@ -34,6 +36,8 @@ public enum ErrorCode {
     STORE_INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "ST-005", "유효하지 않은 주소입니다."),
     STORE_ALREADY_APPROVED(HttpStatus.CONFLICT, "ST-006", "이미 승인된 가게입니다."),
     STORE_ALREADY_DELETED(HttpStatus.CONFLICT, "ST-007", "이미 삭제된 가게입니다."),
+    STORE_UPDATE_UNAUTHORIZED(HttpStatus.FORBIDDEN, "ST-008", "본인 소유의 가게만 수정할 수 있습니다."),
+
 
     // 메뉴 관련
     MENU_ALREADY_DELETED(HttpStatus.CONFLICT, "MEN-001", "이미 삭제된 메뉴입니다."),

@@ -69,7 +69,6 @@ public class MenuController {
     }
 
     //메뉴 단건 조회
-    @PreAuthorize("permitAll()")
     @Operation(summary = "메뉴 단건 조회", description = "하나의 메뉴를 조회 할 때 사용하는 API")
     @GetMapping("/menus/{menuId}")
     @Parameters(
@@ -85,7 +84,6 @@ public class MenuController {
     }
 
     //메뉴 전체 조회
-    @PreAuthorize("permitAll()")
     @Operation(summary = "메뉴 전체 조회 ", description = "가게별 전체 메뉴를 조회 하거나 검색 할 때 사용하는 API")
     @GetMapping("/menus")
     @Parameters(
