@@ -4,15 +4,13 @@ import com.sparta.gamjaquick.config.security.jwt.JwtProvider;
 import com.sparta.gamjaquick.user.dto.request.UserLoginRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserSearchParameter;
 import com.sparta.gamjaquick.user.dto.response.UserLoginResponseDto;
-import com.sparta.gamjaquick.user.entity.RoleType;
 import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
 import com.sparta.gamjaquick.user.dto.request.UserSignUpRequestDto;
 import com.sparta.gamjaquick.user.dto.request.UserUpdateRequestDto;
 import com.sparta.gamjaquick.user.dto.response.UserResponseDto;
 import com.sparta.gamjaquick.user.dto.response.UserDeleteResponseDto;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.sparta.gamjaquick.user.entity.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.sparta.gamjaquick.user.entity.RoleType.CUSTOMER;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +38,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDto registerUser(UserSignUpRequestDto signUpDto) {
+        String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         User user = User.builder()
                 .username(signUpDto.getUsername())
                 .nickname(signUpDto.getNickname())
                 .email(signUpDto.getEmail())
-                .password(signUpDto.getPassword())
+                .password(encodedPassword)
                 .phoneNumber(signUpDto.getPhoneNumber())
                 .role(RoleType.CUSTOMER)
                 .isPublic(true)
@@ -82,13 +79,13 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 사용자 정보 수정
-     * @param id 수정할 사용자 ID
+     * @param username 인증된 사용자 이름
      * @param updateDto 수정할 데이터
      * @return UserResponseDto 수정된 사용자 정보
      */
     @Override
-    public UserResponseDto updateUser(Long id, UserUpdateRequestDto updateDto) {
-        User user = userRepository.findByIdAndIsDeletedFalse(id)
+    public UserResponseDto updateUser(String username, UserUpdateRequestDto updateDto) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.setNickname(updateDto.getNickname());
@@ -102,21 +99,20 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 사용자 삭제
-     * @param id 삭제할 사용자 ID
-     * @param deletedBy 삭제자
+     * @param username 인증된 사용자 이름
      * @return UserDeleteResponseDto 삭제된 사용자 정보
      */
     @Override
-    public UserDeleteResponseDto deleteUser(Long id, String deletedBy) {
-        User user = userRepository.findByIdAndIsDeletedFalse(id)
+    public UserDeleteResponseDto deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.setIsDeleted(true);
-        user.setDeletedBy(deletedBy);
+        user.setDeletedBy(username);
         user.setDeletedAt(java.time.LocalDateTime.now());
 
         userRepository.save(user);
-        return new UserDeleteResponseDto(id, deletedBy);
+        return new UserDeleteResponseDto(user.getId(), username);
     }
 
     /**
