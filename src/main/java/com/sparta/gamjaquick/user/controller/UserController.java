@@ -13,10 +13,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,14 +25,10 @@ import java.util.List;
 @RestController
 @Tag(name = "User", description = "유저 관련 API")
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     /**
      * 회원 가입
@@ -71,30 +68,30 @@ public class UserController {
 
     /**
      * 사용자 정보 수정
-     * @param id 사용자 ID
+     * @param username 인증된 사용자 이름
      * @param updateDto 수정할 사용자 정보가 담긴 DTO
      * @return ApiResponseDto<UserResponseDto>
      */
     @Operation(summary = "사용자 정보 수정", description = "사용자가 정보를 수정 할 때 사용하는 API")
-    @Parameter(name = "userId", description = "유저 ID", example = "1")
-    @PutMapping("/{userId}")
+    @PutMapping
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('OWNER')")
-    public ApiResponseDto<UserResponseDto> updateUser(@PathVariable("userId") Long id, @RequestBody UserUpdateRequestDto updateDto) {
-        return ApiResponseDto.success(MessageType.UPDATE, userService.updateUser(id, updateDto));
+    public ApiResponseDto<UserResponseDto> updateUser(
+            @AuthenticationPrincipal String username,
+            @RequestBody UserUpdateRequestDto updateDto) {
+        return ApiResponseDto.success(MessageType.UPDATE, userService.updateUser(username, updateDto));
     }
 
     /**
      * 사용자 삭제(회원 탈퇴)
      * 소프트 삭제 방식으로 isDeleted 필드를 true로 설정
-     * @param id 사용자 ID
+     * @param username 인증된 사용자 이름
      * @return ApiResponseDto<UserDeleteResponseDto>
      */
     @Operation(summary = "회원 탈퇴", description = "사용자가 회원 탈퇴를 할 때 사용하는 API")
-    @Parameter(name = "userId", description = "유저 ID", example = "1")
-    @DeleteMapping("/{userId}")
+    @DeleteMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
-    public ApiResponseDto<UserDeleteResponseDto> deleteUser(@PathVariable("userId") Long id) {
-        return ApiResponseDto.success(MessageType.DELETE, userService.deleteUser(id, "admin"));
+    public ApiResponseDto<UserDeleteResponseDto> deleteUser(@AuthenticationPrincipal String username) {
+        return ApiResponseDto.success(MessageType.DELETE, userService.deleteUser(username));
     }
 
     /**
@@ -105,13 +102,11 @@ public class UserController {
      * @return ApiResponseDto 검색 결과
      */
     @Operation(summary = "사용자 검색", description = "사용자를 검색 할 때 사용하는 API")
-    @Parameters(
-            {
-                    @Parameter(name = "searchParam", description = "검색 조건"),
-                    @Parameter(name = "page", description = "페이지", example = "1"),
-                    @Parameter(name = "size", description = "한 페이지에 보일 사용자 수", example = "10")
-            }
-    )
+    @Parameters({
+            @Parameter(name = "searchParam", description = "검색 조건"),
+            @Parameter(name = "page", description = "페이지", example = "1"),
+            @Parameter(name = "size", description = "한 페이지에 보일 사용자 수", example = "10")
+    })
     @GetMapping("/search")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto> searchUsers(@ModelAttribute UserSearchParameter searchParam,
@@ -119,5 +114,16 @@ public class UserController {
                                                       @RequestParam(defaultValue = "10") int size) {
         Page<User> userPage = userService.searchUsers(searchParam, page, size);
         return ResponseEntity.ok(ApiResponseDto.success(MessageType.RETRIEVE, userPage));
+    }
+
+    /**
+     * 로그아웃
+     * 클라이언트 측에서 토큰 삭제로 로그아웃 처리
+     * @return ApiResponseDto<String>
+     */
+    @Operation(summary = "로그아웃", description = "사용자가 로그아웃 할 때 사용하는 API")
+    @PostMapping("/logout")
+    public ApiResponseDto<String> logout() {
+        return ApiResponseDto.success(MessageType.RETRIEVE, "로그아웃 성공");
     }
 }
