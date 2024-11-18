@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
                 .role(RoleType.CUSTOMER)
                 .isPublic(true)
                 .isDeleted(false)
+                .createdBy(signUpDto.getUsername())
                 .build();
 
         userRepository.save(user);
