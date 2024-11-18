@@ -49,58 +49,65 @@ public class OrderService {
     private final UserRepository userRepository;
 
     public OrderResponseDto createOrder(OrderCreateRequestDto requestDto) {
-        // 배송지 정보 저장
+        // 배송 정보 저장
         DeliveryInfo deliveryInfo = new DeliveryInfo(
                 requestDto.getDeliveryInfo().getAddress(),
                 requestDto.getDeliveryInfo().getRequest()
         );
         deliveryInfoRepository.save(deliveryInfo);
 
-        // 유저 정보 및 가게 정보 조회
-        User findUser = userRepository.findById(requestDto.getUserId()).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        // 사용자 및 가게 정보 조회
+        User findUser = userRepository.findById(requestDto.getUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Store findStore = storeService.findById(requestDto.getStoreId().toString());
 
-        // 총금액 계산, 주문 메뉴 저장
+        // 3. 주문 생성 (orderItems는 이후 추가)
+        Order order = new Order(
+                findUser,
+                findStore,
+                0, // totalPrice는 이후 계산
+                requestDto.getType(),
+                deliveryInfo,
+                new ArrayList<>() // 비어 있는 리스트 초기화
+        );
+        order.setCancelReason(""); // 기본값 설정
+        order.setOrderDate(LocalDateTime.now()); // 주문 날짜 설정
+
+        // 4. 먼저 Order를 저장 (ID를 생성하기 위함)
+        order = orderRepository.save(order);
+
+        // 5. 주문 항목 및 총 가격 계산
         List<OrderItem> orderItems = new ArrayList<>();
         int totalPrice = 0;
         for (OrderCreateRequestDto.OrderItemRequestDto itemDto : requestDto.getOrderItems()) {
             Menu menu = menuRepository.findById(itemDto.getMenuId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.MENU_NOT_FOUND));
-            totalPrice += itemDto.getPrice() * itemDto.getQuantity(); // 총 금액 계산
+            totalPrice += itemDto.getPrice() * itemDto.getQuantity();
 
             OrderItem orderItem = new OrderItem(menu, itemDto.getQuantity(), itemDto.getPrice());
+            orderItem.setOrder(order); // Order 설정
             orderItems.add(orderItem);
         }
 
-        // 완성된 주문서 생성
-        Order order = new Order(
-                findUser,
-                findStore,
-                requestDto.getOrderNumber(),
-                totalPrice,  // 계산된 총 금액
-                requestDto.getType(),
-                deliveryInfo,
-//                payment,  // 결제 정보를 미리 설정
-                orderItems
-        );
-
-        // 먼저 주문을 저장
-        order = orderRepository.save(order);  // 여기서 order를 먼저 저장
-
-        // 주문 항목 저장 (배달 정보 및 주문 아이템)
+        // 6. OrderItem 저장
         orderItemRepository.saveAll(orderItems);
 
-        // 결제 정보 상태를 미리 PENDING으로 설정한 Payment 객체 생성
-        Payment payment = new Payment(requestDto.getPayment());
-        payment.setOrder(order);
-        payment.setPaymentAmount(totalPrice);
-        payment.setStatus(PaymentStatus.PENDING);  // 결제 상태를 PENDING으로 설정
+        // 7. 총 가격 설정 후 Order 업데이트
+        order.setTotalPrice(totalPrice);
+        order.setOrderItems(orderItems);
+        order = orderRepository.save(order);
 
-        // 결제 정보 저장
-//        payment.setOrder(order);  // 주문과 결제 정보 연결
-        paymentRepository.save(payment);  // Payment 저장
+        // 결제 정보 생성 및 저장
+        Payment payment = new Payment(requestDto.getPayment(), totalPrice);
+        payment.setOrder(order); // 저장된 Order 설정
+        paymentRepository.save(payment);
 
-        // 주문 응답 반환
+
+        // Order에 Payment 설정
+        order.setPayment(payment);
+        orderRepository.save(order);
+
+        // 반환
         return OrderResponseDto.from(order);
     }
 
@@ -129,28 +136,50 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        // 주문 성공
+        // 결제 객체 생성 또는 기존 결제 정보 가져오기
+        Payment payment = order.getPayment();
+        if (payment == null) {
+            // Payment 객체가 없으면 새로 생성
+            payment = new Payment();
+            payment.setOrder(order);  // 주문과 연결
+            payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
+            payment.setStatus(PaymentStatus.PENDING);
+        }
+
+        // 주문 성공 처리
         if (requestDto.getStatus() == OrderStatus.COMPLETED) {
-            Payment payment = order.getPayment(); // 결제 성공으로 업데이트
-            payment.updateStatus(PaymentStatus.SUCCESS);
-            payment.setAdditionalPaymentInfo(payment.getId(), "payment_key_generated", LocalDateTime.now());
+            payment.setStatus(PaymentStatus.SUCCESS);
+            payment.setPaymentKey(UUID.randomUUID().toString()); // 고유 키 생성
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setPaymentAmount(order.getTotalPrice()); // 결제 금액 설정
+
+            // 결제 정보 저장
             paymentRepository.save(payment);
 
-            order.updateStatus(requestDto.getStatus());
+            order.setPayment(payment); // Order와 Payment 연결
+            order.updateStatus(OrderStatus.COMPLETED);
 
-        // 주문 취소
         } else if (requestDto.getStatus() == OrderStatus.CANCELLED) {
-            Payment payment = order.getPayment();
-            payment.updateStatus(PaymentStatus.CANCELLED);
-            payment.setRefund(payment.getId(), payment.getPaymentMethod(), payment.getPaymentAmount(), LocalDateTime.now());
+            // 주문 취소 처리
+            payment.setStatus(PaymentStatus.CANCELLED);
+            payment.setRefundMethod("카드");
+            payment.setRefundAmount(order.getTotalPrice());
+            payment.setRefundDate(LocalDateTime.now());
+
+            // 결제 정보 저장
             paymentRepository.save(payment);
 
+            order.setPayment(payment); // Order와 Payment 연결
             order.updateStatus(OrderStatus.CANCELLED);
-
+            order.setCancelReason(requestDto.getCancelReason());
         } else {
+            // 그 외 상태 업데이트
             order.updateStatus(requestDto.getStatus());
         }
-        return OrderResponseDto.from(order);
+
+        orderRepository.save(order); // 변경된 주문 저장
+
+        return OrderResponseDto.from(order); // 응답 DTO 생성 및 반환
     }
 
     //소프트 삭제

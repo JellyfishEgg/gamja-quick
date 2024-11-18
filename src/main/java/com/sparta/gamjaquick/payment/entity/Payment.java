@@ -23,16 +23,18 @@ public class Payment extends AuditingFields {
     private UUID id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = true)
     private Order order;
 
     @Setter
     @Column(name = "payment_amount", length = 100, nullable = false)
     private int paymentAmount;
 
+    @Setter
     @Column(name = "payment_method", length = 100, nullable = false)
     private String paymentMethod;
 
+    @Setter
     @Builder.Default
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate = LocalDateTime.now();
@@ -43,6 +45,7 @@ public class Payment extends AuditingFields {
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.PENDING; // 기본값 설정;
 
+    @Setter
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
@@ -50,21 +53,26 @@ public class Payment extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Setter
     @Column(name = "refund_method", nullable = false)
-    private String refundMethod;
+    private String refundMethod = "";
 
+    @Setter
     @Column(name = "refund_amount", nullable = false)
-    private int refundAmount;
+    private int refundAmount = 0;
 
+    @Setter
     @Builder.Default
-    @Column(name = "refund_date", nullable = true)
-    private LocalDateTime refundDate = LocalDateTime.now();
+    @Column(name = "refund_date")
+    private LocalDateTime refundDate = null;
 
     // PaymentCreateRequestDto에서 결제 수단만 받음
-    public Payment(PaymentCreateRequestDto requestDto) {
+    public Payment(PaymentCreateRequestDto requestDto, int totalPrice) {
         this.paymentMethod = requestDto.getPaymentMethod();
-        this.status = getStatus();
-        //this.paymentAmount = 0;  // 결제 금액은 추후 주문 총액을 받아옴
+        this.paymentAmount = totalPrice;
+        this.status = PaymentStatus.PENDING;
+        this.paymentDate = LocalDateTime.now();
+        this.paymentKey = UUID.randomUUID().toString();
     }
 
     @PrePersist

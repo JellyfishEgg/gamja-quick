@@ -19,16 +19,16 @@ public class OrderCreateRequestDto {
 
     private Long userId;
     private UUID storeId;
-    private String orderNumber;
+   // private String orderNumber;
     private List<OrderItemRequestDto> orderItems;
     private OrderType type;
     private PaymentCreateRequestDto payment;
     private DeliveryInfoRequestDto deliveryInfo;
 
-    public OrderCreateRequestDto(Long userId, UUID storeId, String orderNumber, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
+    public OrderCreateRequestDto(Long userId, UUID storeId, List<OrderItemRequestDto> orderItems, OrderType type, PaymentCreateRequestDto payment, DeliveryInfoRequestDto deliveryInfo) {
         this.userId = userId;
         this.storeId = storeId;
-        this.orderNumber = orderNumber;
+        //this.orderNumber = orderNumber;
         this.orderItems = orderItems;
         this.type = type;
         this.payment = payment;
@@ -40,6 +40,7 @@ public class OrderCreateRequestDto {
     @Setter
     public static class OrderItemRequestDto {
         private UUID menuId;
+        private String menuName;
         private int quantity;
         private int price;
     }

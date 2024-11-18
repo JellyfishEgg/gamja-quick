@@ -40,14 +40,17 @@ public class Order extends AuditingFields {
     @Column(name = "order_number", length = 100, nullable = false)
     private String orderNumber;
 
+    @Setter
     @Builder.Default
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate = LocalDateTime.now();
 
+    @Setter
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @Setter
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
 
@@ -60,11 +63,13 @@ public class Order extends AuditingFields {
     @Column(name = "status")
     private OrderStatus status;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "order")
+    @Setter
+    @OneToOne(mappedBy = "order", orphanRemoval = true)
     private Payment payment;
 
+    @Setter
     @Column(name = "cancel_reason", length = 100, nullable = false)
-    private String cancelReason;
+    private String cancelReason = "";
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -74,10 +79,10 @@ public class Order extends AuditingFields {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-public Order(User user, Store store, String orderNumber, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, List<OrderItem> orderItems) {
+public Order(User user, Store store, int totalPrice, OrderType type, DeliveryInfo deliveryInfo, List<OrderItem> orderItems) {
     this.user = user;
     this.store = store;
-    this.orderNumber = orderNumber;
+    //this.orderNumber = orderNumber;
     this.totalPrice = totalPrice;
     this.type = type;
     this.deliveryInfo = deliveryInfo; // 배달 정보 설정
@@ -85,6 +90,12 @@ public Order(User user, Store store, String orderNumber, int totalPrice, OrderTy
     this.orderItems = orderItems;     // 주문 항목 설정
     this.status = OrderStatus.PENDING; // 기본 상태 PENDING으로 설정
 }
+
+    // 주문 번호 생성 로직 추가
+    @PrePersist
+    public void generateOrderNumber() {
+        this.orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
 
     // 소프트 삭제
     public void changeToDeleted() {

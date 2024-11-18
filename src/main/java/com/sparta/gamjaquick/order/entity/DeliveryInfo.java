@@ -25,7 +25,7 @@ public class DeliveryInfo extends AuditingFields {
     private Order order;
 
     @Column(name = "address", nullable = false)
-    private String address;
+    private String address = "";
 
     @Column(name = "request")
     private String request;
@@ -45,9 +45,12 @@ public class DeliveryInfo extends AuditingFields {
     }
 
     public static DeliveryInfo from(OrderCreateRequestDto.DeliveryInfoRequestDto dto) {
+        String address = (dto.getAddress() == null || dto.getAddress().isEmpty()) ? "" : dto.getAddress();
+        String request = (dto.getRequest() == null) ? "" : dto.getRequest(); // 요청 메시지도 일단 기본값
+
         return DeliveryInfo.builder()
-                .address(dto.getAddress())
-                .request(dto.getRequest())
+                .address(address)
+                .request(request)
                 .build();
     }
 
