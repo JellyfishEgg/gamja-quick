@@ -19,12 +19,10 @@ import java.util.UUID;
 public class Payment extends AuditingFields {
 
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = true)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 

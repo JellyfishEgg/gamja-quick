@@ -6,6 +6,8 @@ import com.sparta.gamjaquick.orderItem.entity.OrderItem;
 import com.sparta.gamjaquick.payment.dto.request.PaymentCreateRequestDto;
 import com.sparta.gamjaquick.payment.entity.Payment;
 import com.sparta.gamjaquick.payment.entity.PaymentStatus;
+import com.sparta.gamjaquick.store.entity.Store;
+import com.sparta.gamjaquick.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -24,16 +26,16 @@ import java.util.UUID;
 public class Order extends AuditingFields {
 
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
-    @Column(name = "user_id", length = 100, nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)  // 여러 주문이 하나의 유저에 속함
+    @JoinColumn(name = "user_id")  // 외래 키 이름
+    private User user;
 
-    @Column(name = "store_id", length = 100, nullable = false)
-    private UUID storeId;
+    @ManyToOne(fetch = FetchType.LAZY)  // 여러 주문이 하나의 유저에 속함
+    @JoinColumn(name = "store_id")  // 외래 키 이름
+    private Store store;
 
     @Column(name = "order_number", length = 100, nullable = false)
     private String orderNumber;
