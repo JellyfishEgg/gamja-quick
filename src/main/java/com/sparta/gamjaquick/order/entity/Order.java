@@ -67,6 +67,9 @@ public class Order extends AuditingFields {
     @OneToOne(mappedBy = "order", orphanRemoval = true)
     private Payment payment;
 
+    // 레파지토리에서 아이디 찾아서 하기
+
+
     @Setter
     @Column(name = "cancel_reason", length = 100, nullable = false)
     private String cancelReason = "";

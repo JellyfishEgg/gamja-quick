@@ -159,13 +159,19 @@ public class OrderService {
 
         // 결제 객체 생성 또는 기존 결제 정보 가져오기
         Payment payment = order.getPayment();
+        System.out.println(payment.getId());
         if (payment == null) {
             // Payment 객체가 없으면 새로 생성
             payment = new Payment();
             payment.setOrder(order);  // 주문과 연결
             payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
             payment.setStatus(PaymentStatus.PENDING);
+
+            // 결제 정보 저장
+            payment = paymentRepository.save(payment);
+            order.setPayment(payment); // Order와 Payment 연결
         }
+
 
         // 주문 성공 처리
         if (requestDto.getStatus() == OrderStatus.COMPLETED) {
@@ -174,7 +180,7 @@ public class OrderService {
             payment.setPaymentDate(LocalDateTime.now());
             payment.setPaymentAmount(order.getTotalPrice()); // 결제 금액 설정
 
-            // 결제 정보 저장
+            // 결제 정보 저장 <-아마 여기서 에러
             paymentRepository.save(payment);
 
             order.setPayment(payment); // Order와 Payment 연결
@@ -199,7 +205,7 @@ public class OrderService {
         }
 
         orderRepository.save(order); // 변경된 주문 저장
-
+        System.out.println(order.getStatus());
         return OrderResponseDto.from(order); // 응답 DTO 생성 및 반환
     }
 
