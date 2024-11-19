@@ -158,20 +158,8 @@ public class OrderService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         // 결제 객체 생성 또는 기존 결제 정보 가져오기
-        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrderId(orderId).orElse(null);
         System.out.println(payment.getId());
-        if (payment == null) {
-            // Payment 객체가 없으면 새로 생성
-            payment = new Payment();
-            payment.setOrder(order);  // 주문과 연결
-            payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
-            payment.setStatus(PaymentStatus.PENDING);
-
-            // 결제 정보 저장
-            payment = paymentRepository.save(payment);
-            order.setPayment(payment); // Order와 Payment 연결
-        }
-
 
         // 주문 성공 처리
         if (requestDto.getStatus() == OrderStatus.COMPLETED) {

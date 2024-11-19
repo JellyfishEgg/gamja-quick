@@ -64,7 +64,7 @@ public class Order extends AuditingFields {
     private OrderStatus status;
 
     @Setter
-    @OneToOne(mappedBy = "order", orphanRemoval = true)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment;
 
     // 레파지토리에서 아이디 찾아서 하기

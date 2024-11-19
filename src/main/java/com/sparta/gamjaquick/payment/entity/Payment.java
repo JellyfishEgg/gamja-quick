@@ -22,7 +22,7 @@ public class Payment extends AuditingFields {
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne (cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id", nullable = true)
     private Order order;
 
