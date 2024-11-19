@@ -22,7 +22,8 @@ public class Payment extends AuditingFields {
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
-    @OneToOne (cascade = CascadeType.ALL)
+    @Setter
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id", nullable = true)
     private Order order;
 
@@ -80,10 +81,6 @@ public class Payment extends AuditingFields {
         if (this.status == null) {
             this.status = PaymentStatus.PENDING;
         }
-    }
-
-    public void setOrder(Order order) {
-        this.order = new Order();  // 기존의 주문 객체를 참조로 설정하거나
     }
 
     // 결제 상태 업데이트

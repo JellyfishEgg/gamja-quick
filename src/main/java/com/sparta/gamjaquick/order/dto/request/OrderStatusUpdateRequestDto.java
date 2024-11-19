@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class OrderStatusUpdateRequestDto {
-    private OrderStatus status;
+    private OrderStatus orderStatus;
     private String cancelReason;   // 주문 취소 사유 (취소할 때만 필요)
 
 }

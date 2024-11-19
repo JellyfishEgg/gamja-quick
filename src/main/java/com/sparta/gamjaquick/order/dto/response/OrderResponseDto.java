@@ -5,6 +5,7 @@ import com.sparta.gamjaquick.order.entity.OrderStatus;
 import com.sparta.gamjaquick.order.entity.OrderType;
 import com.sparta.gamjaquick.orderItem.dto.response.OrderItemResponseDto;
 import com.sparta.gamjaquick.payment.dto.response.PaymentResponseDto;
+import com.sparta.gamjaquick.payment.entity.Payment;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -41,7 +42,7 @@ public class OrderResponseDto {
     private PaymentResponseDto payment;             // 결제 정보
 
     // order status 에 따른 반환값 분리
-    public static OrderResponseDto from(Order order) {
+    public static OrderResponseDto from(Order order, Payment savedPayment) {
         // 주문 생성일 때
         if (order.getStatus() == OrderStatus.PENDING) {
             return OrderResponseDto.builder()
@@ -56,9 +57,9 @@ public class OrderResponseDto {
                     .isDeleted(order.isDeleted())
                     .orderItems(order.getOrderItems().stream()
                             .map(OrderItemResponseDto::from)
-                            .collect(Collectors.toList()))
+                            .toList())
                     .deliveryInfo(DeliveryInfoResponseDto.from(order.getDeliveryInfo()))
-                    .payment(PaymentResponseDto.from(order.getPayment())) // paymentStatus와 paymentMethod만 포함
+                    .payment(PaymentResponseDto.from(savedPayment)) // paymentStatus와 paymentMethod만 포함
                     .createdAt(order.getCreatedAt())
                     .createdBy(order.getCreatedBy())
                     .build();
