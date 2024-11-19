@@ -1,6 +1,7 @@
 package com.sparta.gamjaquick.order.service;
 
 
+import com.sparta.gamjaquick.common.request.SearchParameter;
 import com.sparta.gamjaquick.common.response.PageResponseDto;
 import com.sparta.gamjaquick.global.error.ErrorCode;
 import com.sparta.gamjaquick.global.error.exception.BusinessException;
@@ -25,7 +26,6 @@ import com.sparta.gamjaquick.user.entity.User;
 import com.sparta.gamjaquick.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -74,7 +73,7 @@ public class OrderService {
         order.setOrderDate(LocalDateTime.now()); // 주문 날짜 설정
 
         // 4. 먼저 Order를 저장 (ID를 생성하기 위함)
-        order = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
         // 5. 주문 항목 및 총 가격 계산
         List<OrderItem> orderItems = new ArrayList<>();
@@ -84,8 +83,8 @@ public class OrderService {
                     .orElseThrow(() -> new BusinessException(ErrorCode.MENU_NOT_FOUND));
             totalPrice += itemDto.getPrice() * itemDto.getQuantity();
 
-            OrderItem orderItem = new OrderItem(menu, itemDto.getQuantity(), itemDto.getPrice());
-            orderItem.setOrder(order); // Order 설정
+            OrderItem orderItem = new OrderItem(menu, itemDto.getQuantity(), itemDto.getPrice(), totalPrice);
+            orderItem.setOrder(savedOrder); // Order 설정
             orderItems.add(orderItem);
         }
 
@@ -93,43 +92,64 @@ public class OrderService {
         orderItemRepository.saveAll(orderItems);
 
         // 7. 총 가격 설정 후 Order 업데이트
-        order.setTotalPrice(totalPrice);
-        order.setOrderItems(orderItems);
-        order = orderRepository.save(order);
+        savedOrder.setTotalPrice(totalPrice);
+        savedOrder.setOrderItems(orderItems);
 
-        // 결제 정보 생성 및 저장
+        //        // 결제 정보 생성 및 저장
         Payment payment = new Payment(requestDto.getPayment(), totalPrice);
-        payment.setOrder(order); // 저장된 Order 설정
-        paymentRepository.save(payment);
-
+        payment.setOrder(savedOrder); // 저장된 Order 설정
+        Payment savedPayment = paymentRepository.save(payment);
 
         // Order에 Payment 설정
         order.setPayment(payment);
-        orderRepository.save(order);
 
         // 반환
-        return OrderResponseDto.from(order);
+        return OrderResponseDto.from(savedOrder, savedPayment);
+    }
+
+//    @Transactional(readOnly = true)
+//    public OrderResponseDto getOrder(UUID orderId) {
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
+//        return OrderResponseDto.from(order);
+//    }
+
+    public Order findById(String orderId) {
+        return orderRepository.findById(UUID.fromString(orderId)).orElseThrow(
+                () -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND)
+        );
     }
 
     @Transactional(readOnly = true)
     public OrderResponseDto getOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
-        return OrderResponseDto.from(order);
+        Payment findPayment = paymentRepository.findByOrder(order);
+        return OrderResponseDto.from(order, findPayment);
     }
 
+
     @Transactional(readOnly = true)
-    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, Pageable pageable) {
-        Page<Order> orders;
-        if (userId != null) {
-            orders = orderRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
-        } else if (storeId != null) {
-            orders = orderRepository.findAllByStoreIdAndIsDeletedFalse(storeId, pageable);
-        } else {
-            throw new BusinessException(ErrorCode.INVALID_INPUT);
-        }
-        return PageResponseDto.of(orders.map(OrderResponseDto::from));
+    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, SearchParameter searchParameter) {
+        Page<Order> orders = orderRepository.searchOrders(searchParameter, userId, storeId);
+        return PageResponseDto.of(orders.map(order -> {
+            Payment findPayment = paymentRepository.findByOrder(order);
+            return OrderResponseDto.from(order, findPayment);
+        }));
     }
+
+//    @Transactional(readOnly = true)
+//    public PageResponseDto<OrderResponseDto> getAllOrders(Long userId, UUID storeId, Pageable pageable) {
+//        Page<Order> orders;
+//        if (userId != null) {
+//            orders = orderRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
+//        } else if (storeId != null) {
+//            orders = orderRepository.findAllByStoreIdAndIsDeletedFalse(storeId, pageable);
+//        } else {
+//            throw new BusinessException(ErrorCode.INVALID_INPUT);
+//        }
+//        return PageResponseDto.of(orders.map(OrderResponseDto::from));
+//    }
 
     public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDto requestDto) {
         // 주문 존재 확인
@@ -137,29 +157,36 @@ public class OrderService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         // 결제 객체 생성 또는 기존 결제 정보 가져오기
-        Payment payment = order.getPayment();
-        if (payment == null) {
-            // Payment 객체가 없으면 새로 생성
-            payment = new Payment();
-            payment.setOrder(order);  // 주문과 연결
-            payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
-            payment.setStatus(PaymentStatus.PENDING);
-        }
+//        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrder(order);
+        System.out.println(payment.getId());
+//        if (payment == null) {
+//            // Payment 객체가 없으면 새로 생성
+//            payment = new Payment();
+//            payment.setOrder(order);  // 주문과 연결
+//            payment.setPaymentMethod("카드"); // 기본 결제 수단 설정
+//            payment.setStatus(PaymentStatus.PENDING);
+//
+//            // 결제 정보 저장
+//            payment = paymentRepository.save(payment);
+//            order.setPayment(payment); // Order와 Payment 연결
+//        }
 
         // 주문 성공 처리
-        if (requestDto.getStatus() == OrderStatus.COMPLETED) {
+        if (requestDto.getOrderStatus() == OrderStatus.COMPLETED) {
+            System.out.println("여기냐");
             payment.setStatus(PaymentStatus.SUCCESS);
             payment.setPaymentKey(UUID.randomUUID().toString()); // 고유 키 생성
             payment.setPaymentDate(LocalDateTime.now());
             payment.setPaymentAmount(order.getTotalPrice()); // 결제 금액 설정
 
-            // 결제 정보 저장
-            paymentRepository.save(payment);
+            // 결제 정보 저장 <-아마 여기서 에러
+//            paymentRepository.save(payment);
 
             order.setPayment(payment); // Order와 Payment 연결
             order.updateStatus(OrderStatus.COMPLETED);
 
-        } else if (requestDto.getStatus() == OrderStatus.CANCELLED) {
+        } else if (requestDto.getOrderStatus() == OrderStatus.CANCELLED) {
             // 주문 취소 처리
             payment.setStatus(PaymentStatus.CANCELLED);
             payment.setRefundMethod("카드");
@@ -167,19 +194,19 @@ public class OrderService {
             payment.setRefundDate(LocalDateTime.now());
 
             // 결제 정보 저장
-            paymentRepository.save(payment);
+//            paymentRepository.save(payment);
 
             order.setPayment(payment); // Order와 Payment 연결
             order.updateStatus(OrderStatus.CANCELLED);
             order.setCancelReason(requestDto.getCancelReason());
         } else {
             // 그 외 상태 업데이트
-            order.updateStatus(requestDto.getStatus());
+            order.updateStatus(requestDto.getOrderStatus());
         }
 
-        orderRepository.save(order); // 변경된 주문 저장
-
-        return OrderResponseDto.from(order); // 응답 DTO 생성 및 반환
+//        orderRepository.save(order); // 변경된 주문 저장
+//        System.out.println(order.getStatus());
+        return OrderResponseDto.from(order, payment); // 응답 DTO 생성 및 반환
     }
 
     //소프트 삭제

@@ -52,19 +52,18 @@ public class OrderController {
 
     // 주문 전체 조회 (페이징 처리 추가)
     @GetMapping("")
-    @Parameters(
-            {@Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000"),
-            @Parameter(name = "userId", description = "유저 ID", example = "1")}
-    )
+    @Parameters({
+            @Parameter(name = "storeId", description = "가게 ID", example = "c0a80018-9323-1fa9-8193-239fc7e00000"),
+            @Parameter(name = "userId", description = "유저 ID", example = "1")
+    })
     @ApiErrorCodeExample(ErrorCode.INVALID_INPUT)
-    @Operation(summary = "주문 전체 조회", description = "가게별, 사용자별 주문을 조회 할 때 사용하는 API")
+    @Operation(summary = "주문 전체 조회", description = "가게별, 사용자별 주문을 조회할 때 사용하는 API")
     public ApiResponseDto<PageResponseDto<OrderResponseDto>> getAllOrders(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) UUID storeId,
             @ModelAttribute SearchParameter searchParameter) {
 
-        Pageable pageable = searchParameter.getPageable();
-        PageResponseDto<OrderResponseDto> result = orderService.getAllOrders(userId, storeId, pageable);
+        PageResponseDto<OrderResponseDto> result = orderService.getAllOrders(userId, storeId, searchParameter);
         return ApiResponseDto.success(MessageType.RETRIEVE, result);
     }
 

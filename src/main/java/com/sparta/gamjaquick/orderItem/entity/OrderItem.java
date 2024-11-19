@@ -38,9 +38,10 @@ public class OrderItem {
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
 
-    public OrderItem(Menu menu, int quantity, int orderPrice) {
+    public OrderItem(Menu menu, int quantity, int orderPrice, int totalPrice) {
         this.menu = menu;
         this.quantity = quantity;
         this.orderPrice = orderPrice;
+        this.totalPrice = totalPrice;
     }
 }
