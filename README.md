@@ -4,7 +4,7 @@
 
 ## 🔗 배포 링크
 
-[🔗** Gamja Quick 바로가기 **](http://3.34.143.207/swagger-ui/index.html)
+[🔗** Gamja Quick 바로가기 **](http://3.34.143.207/swagger-ui/index.html) >>> 현재 배포는 중단되어있는 상태
 
 ## 📌 프로젝트 소개
 
