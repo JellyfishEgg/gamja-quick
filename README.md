@@ -1,7 +1,5 @@
 # Gamja Quick
 
-💡 본 프로젝트는 내일배움캠프 Spring Java 심화 부트캠프 첫 번째 프로젝트의 결과물 입니다.
-
 ## 🔗 배포 링크
 
 [🔗** Gamja Quick 바로가기 **](http://3.34.143.207/swagger-ui/index.html)
